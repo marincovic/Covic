@@ -3,17 +3,27 @@
 #include "Node.h"
 
 template<typename T>
-class DoubleNode : public Node<T>
+class DoubleNode
 {
 private:
-	Node<T>* m_pPreviousNode{ nullptr };
+	DoubleNode<T>* m_pPreviousNode{ nullptr };
+	DoubleNode<T>* m_pNextNode{ nullptr };
+
+	T m_data;
 public:
-	DoubleNode(const T& data, Node<T>* pNextNode, Node<T>* pPreviousNode) : Node(data, pNextNode)
+	DoubleNode(const T& data, DoubleNode<T>* pNextNode, DoubleNode<T>* pPreviousNode)
 	{
 		m_pPreviousNode = pPreviousNode;
+		m_pNextNode = pNextNode;
+		m_data = data;
 	}
-	~DoubleNode() override { }
+	~DoubleNode() { }
 
-	void SetPrevious(DoubleNode<T>* pPrevious) { m_pPreviousNode = pPreviousNode; }
+	void SetPrevious(DoubleNode<T>* pPrevious) { m_pPreviousNode = pPrevious; }
 	DoubleNode<T>* GetPrevious() const { return m_pPreviousNode; }
+
+	const T& GetData() const { return m_data; }
+
+	void SetNext(DoubleNode<T>* pNext) { m_pNextNode = pNext; }
+	DoubleNode<T>* GetNext() const { return m_pNextNode; }
 };
