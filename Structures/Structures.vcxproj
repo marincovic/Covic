@@ -143,6 +143,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BST.h" />
+    <ClInclude Include="BSTNode.h" />
     <ClInclude Include="DoubleList.h" />
     <ClInclude Include="DoubleNode.h" />
     <ClInclude Include="List.h" />
