@@ -1,5 +1,7 @@
 #pragma once
 
+
+#include<vector>
 #include<stdexcept>
 #include"BSTNode.h"
 template<typename T>
@@ -13,12 +15,16 @@ public:
 	}
 	~BST() {};
 
-	void AddNewMember(const T& newMemberData) {}
-	bool Contains(const T& dataMember) {}
-	void Delete(const T& dataOfMemberToBeDeleted) {}
-	int TreeSize() {}
-	int LeftTreeSize() {}
-	int RightTreeSize() {}
+	void AddNewMember(const T& newMemberData) {};
+	bool Contains(const T& dataMember) {};
+	void Delete(const T& dataOfMemberToBeDeleted) {};
+	int TreeSize() {};
+	int LeftTreeSize() {};
+	int RightTreeSize() {};
+	std::vector<T>& PreOrderOutput() {};
+	std::vector<T>& PostOrderOutput() {};
+	std::vector<T>& InOrderOutput() {};
+
 private:
 	BSTNode<T> m_pTreeRoot;
 

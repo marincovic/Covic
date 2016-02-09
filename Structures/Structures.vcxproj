@@ -148,7 +148,9 @@
     <ClInclude Include="DoubleList.h" />
     <ClInclude Include="DoubleNode.h" />
     <ClInclude Include="List.h" />
+    <ClInclude Include="MultiChildTree.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="Trie.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
