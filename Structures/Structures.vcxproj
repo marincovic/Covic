@@ -150,7 +150,9 @@
     <ClInclude Include="List.h" />
     <ClInclude Include="MultiChildTree.h" />
     <ClInclude Include="Node.h" />
-    <ClInclude Include="Trie.h" />
+    <ClInclude Include="Trie.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

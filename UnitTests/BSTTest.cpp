@@ -27,6 +27,7 @@ namespace UnitTests
 	{
 	public:
 		std::vector<int> listOfNodesForTest{ 10,5,15,2,8,12,18 };
+
 		TEST_METHOD(BST_AddFirstMemberTest) {
 			BST<int> bst(3);
 			Assert::AreEqual(1, bst.TreeSize());
@@ -157,6 +158,22 @@ namespace UnitTests
 			for (int i = 0; i < listOfNodesForTest.size(); ++i)
 				bst.AddNewMember(listOfNodesForTest.at(i));
 			Assert::AreEqual(7, (int)bst.InOrderOutput().size());
+		}
+
+		TEST_METHOD(BST_ForEmptyTreeTreeSizeFunctionReturnsZero)
+		{
+			BST<int> bst;
+			Assert::AreEqual(0, bst.TreeSize());
+		}
+
+		TEST_METHOD(BST_TreeSizeFunctionReturnsSameSizeAfterAddingMemberThatISAlreadyInTheTree)
+		{
+			BST<int> bst;
+			bst.AddNewMember(5);
+			Assert::AreEqual(1, bst.TreeSize());
+			bst.AddNewMember(5);
+			Assert::AreEqual(1, bst.TreeSize());
+
 		}
 	};
 }

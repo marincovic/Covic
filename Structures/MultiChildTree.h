@@ -40,6 +40,6 @@ private:
 	T m_dataMember;
 	int m_numberOfChildren;
 	bool m_PreAlocateNextNodeVector;
-	std::vector<MultiChildTree<T>*> m_nextNodeVector
+	std::vector<MultiChildTree<T>*> m_nextNodeVector;
 
 };

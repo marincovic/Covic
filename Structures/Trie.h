@@ -6,7 +6,7 @@ class Trie {
 public:
 	Trie() 
 	{
-		m_root = MultiChildTree<char>('\0', 26, true);
+		m_root = new MultiChildTree<char>('\0', 26, true);
 	}
 	virtual ~Trie() {};
 
@@ -16,6 +16,6 @@ public:
 	std::vector<char*> FindAllWords(const char* partOfWordToBeFound) {};
 
 private:
-	MultiChildTree<char> m_root;
+	MultiChildTree<char>* m_root;
 
 };
