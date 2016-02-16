@@ -21,7 +21,7 @@ public:
 	void SetDataOfNode(const T& NewDataOfNode) { m_dataMember = NewDataOfNode; }
 
 	MultiChildTree<T>* GetNextChildAtAdress(int Adress) {
-		if( Adress < m_numberOfChildren )
+		if( Adress < m_numberOfChildren && Adress >= 0 )
 			return m_nextNodeVector.at(Adress);
 		else 
 			throw std::out_of_range("Adress out of bound");
