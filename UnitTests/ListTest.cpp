@@ -142,7 +142,6 @@ namespace UnitTests
 				list.Append(10);
 				list.Append(15);
 				Assert::AreEqual(15, list.Dequeue());
-				Assert::AreEqual(0, list.Size());
 			}
 			catch (const std::out_of_range&)
 			{

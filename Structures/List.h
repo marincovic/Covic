@@ -9,10 +9,10 @@ template<typename T>
 class List
 {
 protected:
-	std::shared_ptr<Node<T>> m_pHead = nullptr;
-	std::shared_ptr<Node<T>> m_pTail = nullptr;
+	Node<T>* m_pHead = nullptr;
+	Node<T>* m_pTail = nullptr;
 
-	std::shared_ptr<Node<T>> m_pIterator = nullptr;
+	Node<T>* m_pIterator = nullptr;
 
 	int m_listSize = 0;
 
@@ -21,17 +21,20 @@ public:
 
 	List(const T& firstMemberValue)
 	{
-		m_pHead = std::make_shared<Node<T>>(firstMemberValue);
+		m_pHead = new Node<T>(firstMemberValue);
 		m_pIterator = m_pTail = m_pHead;
 	}
 
-	List(const std::shared_ptr<Node<T>> pNewNode)
+	List(const Node<T>* pNewNode)
 	{
-		m_pHead = std::make_shared<Node<T>>(pNewNode);
+		m_pHead = new Node<T>(pNewNode);
 		m_pIterator = m_pTail = m_pHead;
 	}
 
-	virtual ~List() {}
+	virtual ~List() {
+		m_pTail = m_pIterator = nullptr;
+		delete m_pHead;
+	}
 
 	const T& GetIteratorData()
 	{
@@ -41,14 +44,14 @@ public:
 			throw std::out_of_range("List Is Empty");
 	}
 
-	std::shared_ptr<Node<T>> GetIteratorPointer() {
+	Node<T>* GetIteratorPointer() {
 		if (m_pIterator)
 			return m_pIterator;
 		else
 			throw std::out_of_range("List is Empty");
 	}
 
-	std::shared_ptr<Node<T>> IteratorNext() {
+	Node<T>* IteratorNext() {
 		if (m_pIterator)
 			return m_pIterator = m_pIterator->GetNext();
 		else
@@ -71,36 +74,36 @@ public:
 
 	int Size() const { return m_listSize; }
 
-	virtual void Append(const T& value)
+	void Append(const T& value)
 	{
 		++m_listSize;
 
 		if (!m_pHead)
 		{
-			m_pHead = std::make_shared<Node<T>>(value);
+			m_pHead = new Node<T>(value);
 			m_pIterator = m_pTail = m_pHead;
 			return;
 		}
-		m_pTail->SetNext(std::make_shared<Node<T>>(value));
+		m_pTail->SetNext(new Node<T>(value));
 		m_pTail = m_pTail->GetNext();
 	}
 
-	virtual void InsertAt(int index, const T& value)
+	void InsertAt(int index, const T& value)
 	{
 		++m_listSize;
 		if (index == 0)
-			m_pHead = std::make_shared<Node<T>>(value, m_pHead);
+			m_pHead = new Node<T>(value, m_pHead);
 		else
 		{
-			std::shared_ptr<Node<T>> pPrev = GetNextPtrAt(index - 1);
-			std::shared_ptr<Node<T>> pNext = pPrev->GetNext();
-			pPrev->SetNext(std::make_shared<Node<T>>(value, pNext));
+			Node<T>* pPrev = GetNextPtrAt(index - 1);
+			Node<T>* pNext = pPrev->GetNext();
+			pPrev->SetNext(new Node<T>(value, pNext));
 		}
 	}
 
 	const T& GetAt(int index) { return GetNextPtrAt(index)->GetData(); }
 
-	virtual void RemoveAt(int index)
+	void RemoveAt(int index)
 	{
 
 		if (!m_pHead) throw std::out_of_range("List is Empty");
@@ -112,7 +115,7 @@ public:
 			m_pHead = m_pHead->GetNext();
 		else
 		{
-			std::shared_ptr<Node<T>> pPrevious = GetNextPtrAt(index - 1);
+			Node<T>* pPrevious = GetNextPtrAt(index - 1);
 			pPrevious->SetNext(pPrevious->GetNext());
 		}
 	}
@@ -125,12 +128,15 @@ public:
 			throw std::out_of_range("List is empty");
 
 		T dataTemp = m_pHead->GetData();
+		Node<T> * tempToBeDeletedVariable= m_pHead;
 		if (!Size())
 			m_pIterator = m_pTail = m_pHead = m_pHead->GetNext();
 		else if (m_pHead == m_pIterator)
 		{
 			m_pHead = m_pIterator = m_pHead->GetNext();
 		}
+		tempToBeDeletedVariable->SetNext(nullptr);
+		delete tempToBeDeletedVariable;
 		return dataTemp;
 	}
 
@@ -142,21 +148,24 @@ public:
 			throw std::out_of_range("List is empty");
 
 		T dataTemp = m_pTail->GetData();
+		Node<T> * tempToBeDeletedVariable = m_pTail;
 		if (!Size())
 			m_pIterator = m_pTail = m_pHead = m_pHead->GetNext();
 		else if (m_pHead == m_pIterator)
 		{
 			m_pTail = m_pIterator = GetNextPtrAt(Size() - 2);
 		}
+		tempToBeDeletedVariable->SetNext(nullptr);
+		delete tempToBeDeletedVariable;
 		return dataTemp;
 	}
 
 private:
-	std::shared_ptr<Node<T>> GetNextPtrAt(int index) const
+	Node<T>* GetNextPtrAt(int index) const
 	{
 		if (!m_pHead)
 			throw std::out_of_range("list is empty");
-		std::shared_ptr<Node<T>> pNext = m_pHead;
+		Node<T>* pNext = m_pHead;
 		while (--index >= 0)
 		{
 			if (!pNext)

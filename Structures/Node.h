@@ -7,21 +7,26 @@ class Node
 {
 private:
 	T m_data;
-	std::shared_ptr<Node<T>> m_pNextNode = nullptr;
+	Node<T>* m_pNextNode = nullptr;
 public:
-	Node(T data, std::shared_ptr<Node<T>> pNextNode = nullptr)
+	Node(T data, Node<T>* pNextNode = nullptr)
 	{
 		m_data = data;
 		m_pNextNode = pNextNode;
 	}
 
-	Node(std::shared_ptr<Node<T>> pNextNode) { m_pNextNode = pNextNode; }
+	Node(Node<T>* pNextNode) { m_pNextNode = pNextNode; }
 
-	virtual ~Node() { }
+	virtual ~Node() {
+		DeleteDataFunction();
+		delete m_pNextNode;
+	}
 
 	//void SetData(const T& data) { m_data = data; }
 	const T& GetData() const { return m_data; }
 
-	void SetNext(std::shared_ptr<Node<T>> pNext) { m_pNextNode = pNext; }
-	std::shared_ptr<Node<T>> GetNext() { return m_pNextNode; }
+	void SetNext(Node<T>* pNext) { m_pNextNode = pNext; }
+	Node<T>* GetNext() { return m_pNextNode; }
+
+	virtual void DeleteDataFunction() {};
 };
