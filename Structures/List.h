@@ -120,7 +120,7 @@ public:
 		}
 	}
 
-	const T& Pop()
+	const T Pop()
 	{
 		if (Size())
 			--m_listSize;
@@ -140,7 +140,7 @@ public:
 		return dataTemp;
 	}
 
-	const T& Dequeue()
+	const T Dequeue()
 	{
 		if (Size())
 			--m_listSize;
@@ -151,13 +151,57 @@ public:
 		Node<T> * tempToBeDeletedVariable = m_pTail;
 		if (!Size())
 			m_pIterator = m_pTail = m_pHead = m_pHead->GetNext();
-		else if (m_pHead == m_pIterator)
+		else if (m_pTail == m_pIterator)
 		{
-			m_pTail = m_pIterator = GetNextPtrAt(Size() - 2);
+			m_pTail = m_pIterator = GetNextPtrAt(Size() - 1);
+		}
+		else
+		{
+			m_pTail = GetNextPtrAt(Size() - 1);
+			m_pTail->SetNext(nullptr);
 		}
 		tempToBeDeletedVariable->SetNext(nullptr);
 		delete tempToBeDeletedVariable;
 		return dataTemp;
+	}
+
+	void DeleteMember(const T& dataOfMemberToBeDeleted)
+	{
+		if (!m_pHead)
+			throw std::out_of_range("List is empty");
+		if (m_pHead->GetData() == dataOfMemberToBeDeleted)
+		{
+			Node<T>* tempPointerToNode = m_pHead;
+			if (m_pHead == m_pIterator)
+				m_pHead = m_pIterator = m_pHead->GetNext();
+			else
+				m_pHead = m_pHead->GetNext();
+			tempPointerToNode->SetNext(nullptr);
+			delete tempPointerToNode;
+		}
+		else
+		{
+			for (Node<T>* tempNode = m_pHead; tempNode->GetNext(); tempNode = tempNode->GetNext())
+			{
+				if (tempNode->GetNext()->GetData() == dataOfMemberToBeDeleted)
+				{
+					Node<T>* tempPointerToNodeTOBeDeleted = tempNode->GetNext();
+					tempNode->SetNext(tempPointerToNodeTOBeDeleted->GetNext());
+					tempPointerToNodeTOBeDeleted->SetNext(nullptr);
+					delete tempPointerToNodeTOBeDeleted;
+				}
+			}
+		}
+	}
+
+	bool ContainsElement(const T& dataOfMemberToBeFaund)
+	{
+		if (!m_pHead)
+			throw std::out_of_range("List is empty");
+		for (Node<T>* tempNode = m_pHead; tempNode; tempNode = tempNode->GetNext())
+			if (tempNode->GetData() == dataOfMemberToBeFaund)
+				return true;
+		return false;
 	}
 
 private:

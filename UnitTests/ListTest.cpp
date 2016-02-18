@@ -104,6 +104,7 @@ namespace UnitTests
 				Assert::IsTrue(true);
 			}
 		}
+		
 		TEST_METHOD(List_PopMethodReturnsValueOfFirstMember)
 		{
 			try {
@@ -134,6 +135,7 @@ namespace UnitTests
 			}
 
 		}
+		
 		TEST_METHOD(List_DequeueReturnsValoueOfLastMember)
 		{
 			try {
@@ -217,5 +219,47 @@ namespace UnitTests
 			Assert::AreEqual(15, list.GetIteratorData());
 		}
 
+		TEST_METHOD(LIST_ContainsFunctionReturnsTrueWhenMemberHasBeenFound)
+		{
+			List<int> list;
+			list.Append(5);
+			list.Append(10);
+			list.Append(15);
+			Assert::IsTrue(list.ContainsElement(10));
+		}
+
+		TEST_METHOD(List_ContainsElementThrowExceptionForEmptyList)
+		{
+			try {
+				List<int> list;
+				list.ContainsElement(5);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+
+		TEST_METHOD(List_DeleteMemberRemovesFirstMemberFromList)
+		{
+			List<int> list;
+			list.Append(5);
+			list.Append(10);
+			list.Append(15);
+			list.DeleteMember(5);
+			Assert::IsFalse(list.ContainsElement(5));
+		}
+
+		TEST_METHOD(List_DeleteMemberRemovesAnyElementFromList)
+		{
+
+			List<int> list;
+			list.Append(5);
+			list.Append(10);
+			list.Append(15);
+			list.DeleteMember(10);
+			Assert::IsFalse(list.ContainsElement(10));
+		}
 	};
 }

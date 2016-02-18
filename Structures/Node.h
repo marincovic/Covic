@@ -18,8 +18,7 @@ public:
 	Node(Node<T>* pNextNode) { m_pNextNode = pNextNode; }
 
 	virtual ~Node() {
-		DeleteDataFunction();
-		delete m_pNextNode;
+		if (m_pNextNode) delete m_pNextNode;
 	}
 
 	//void SetData(const T& data) { m_data = data; }
@@ -28,5 +27,4 @@ public:
 	void SetNext(Node<T>* pNext) { m_pNextNode = pNext; }
 	Node<T>* GetNext() { return m_pNextNode; }
 
-	virtual void DeleteDataFunction() {};
 };
