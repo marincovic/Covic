@@ -10,11 +10,18 @@ class DoubleList
 private:
 	DoubleNode<T>* m_pTail{ nullptr };
 	DoubleNode<T>* m_pHead{ nullptr };
+	DoubleNode<T>* m_pIterator = nullptr;
 
 	int m_listSize = 0;
 
 public:
 	DoubleList() {}
+
+	DoubleList(const T& DataOfFirstMember)
+	{
+		m_pHead = m_pTail = m_pIterator = new DoubleNode<T>(DataOfFirstMember);
+		++m_listSize;
+	}
 
 	const T& GetAt(int index)
 	{
@@ -41,13 +48,12 @@ public:
 	{
 		++m_listSize;
 		if (!m_pHead)
-			m_pHead = m_pTail = new DoubleNode<T>{ value, nullptr, nullptr };
+			m_pHead = m_pTail = m_pIterator = new DoubleNode<T>{ value, nullptr, nullptr };
 		else
 		{
-			DoubleNode<T>* pPrevious = m_pTail;
-			DoubleNode<T>* pNew = new DoubleNode<T>{ value, nullptr, pPrevious };
-			m_pTail = pNew;
-			pPrevious->SetNext(pNew);
+			m_pTail->SetNext(new DoubleNode<T>(value,nullptr,m_pTail));
+			m_pTail = m_pTail->GetNext();
+
 		}
 	}
 
@@ -118,6 +124,54 @@ public:
 				}
 			} while (index--);
 		}
+	}
+
+	DoubleNode<T>* IteratorNext() { 
+		if (!Size()) throw std::out_of_range("List is Empty");
+		m_pIterator = m_pIterator->GetNext();
+		if (!m_pIterator)
+		{
+			m_pIterator = m_pTail;
+			throw std::out_of_range("List iterator is at list end. Reset iterator or set to new index");
+		}
+
+		return m_pIterator;
+	}
+
+	DoubleNode<T>* IteratorPrev() { 
+		if (!Size()) throw std::out_of_range("List is Empty");
+		m_pIterator = m_pIterator->GetPrevious();
+		if (!m_pIterator)
+		{
+			ResetIterator();
+			throw std::out_of_range("List iterator is at list end. Reset iterator or set to new index");
+		}
+
+		return m_pIterator;
+	}
+
+	DoubleNode<T>* GetIterator() {
+		if (!Size()) throw std::out_of_range("List is Empty");
+
+		return m_pIterator;
+	}
+
+	DoubleNode<T>* SetIteratorToAtIndex(int index) 
+	{ 
+		if (!Size()) std::out_of_range("List is empty");
+		if (index < 0 || index>Size())
+			std::out_of_range("Index is out of range");
+
+		ResetIterator();
+		while (--index)
+			m_pIterator = m_pIterator->GetNext();
+		return m_pIterator;
+	}
+	
+	void ResetIterator() {
+		if (!Size()) throw std::out_of_range("List is Empty");
+
+		m_pIterator = m_pHead;
 	}
 
 private:

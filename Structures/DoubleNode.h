@@ -11,7 +11,7 @@ private:
 
 	T m_data;
 public:
-	DoubleNode(const T& data, DoubleNode<T>* pNextNode, DoubleNode<T>* pPreviousNode)
+	DoubleNode(const T& data, DoubleNode<T>* pNextNode = nullptr, DoubleNode<T>* pPreviousNode = nullptr)
 	{
 		m_pPreviousNode = pPreviousNode;
 		m_pNextNode = pNextNode;

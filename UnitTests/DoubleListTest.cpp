@@ -105,5 +105,137 @@ namespace UnitTests
 			}
 		}
 
+
+
+		//Iterator Tests
+		TEST_METHOD(DoubleList_GetIteratorThrowExceptionForNonInitList)
+		{
+			try {
+				DoubleList<int> lista;
+				lista.GetIterator();
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+		
+		TEST_METHOD(DoubleLIst_GetIteratorReturnsFirstMemberOfNewDoubleList)
+		{
+			DoubleList<int> lista(5);
+			Assert::AreEqual(5, lista.GetIterator()->GetData());
+		}
+
+		TEST_METHOD(DoubleList_IteratorNextReturnsNextMemberFromListAndSetsIteratorToNextMemberOfList)
+		{
+			DoubleList<int> lista(5);
+			lista.Append(10);
+			if (10 == lista.IteratorNext()->GetData())
+				Assert::AreEqual(10, lista.GetIterator()->GetData());
+			else
+				Assert::Fail();
+		}
+
+		TEST_METHOD(DoubleList_IteratorNextThrowEceptionForNonInitList)
+		{
+			try {
+				DoubleList<int> lista;
+				lista.IteratorNext();
+				Assert::Fail();
+			}
+			catch(std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+
+		TEST_METHOD(DoubleList_IteratorNextThrowExceptionIfListComesToAnEnd)
+		{
+			try {
+				DoubleList<int> lista;
+				lista.Append(5);
+				lista.IteratorNext();
+				lista.IteratorNext();
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+
+		TEST_METHOD(DoubleList_SetIteratorAtIndexReturnsTheElementAtIndexAndSetsIteratorAtThatIndex)
+		{
+			DoubleList<int> lista(5);
+			lista.Append(10);
+			lista.Append(15);
+			if (15 == lista.SetIteratorToAtIndex(3)->GetData())
+				Assert::AreEqual(15, lista.GetIterator()->GetData());
+			else
+				Assert::Fail();
+		}
+
+		TEST_METHOD(DoubleList_IteratorPrevThrowExceptionForNonInitList)
+		{
+			try {
+				DoubleList<int> lista;
+				lista.IteratorPrev();
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+
+		}
+
+		TEST_METHOD(DoubleList_IteratorPrevThrowsExceptionIfUsedOnFirstMember)
+		{
+			try {
+				DoubleList<int> lista;
+				lista.Append(5);
+				lista.IteratorPrev();
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+
+		TEST_METHOD(DoubleList_IteratorPrevReturnsPrevMemberAndSetsIteratorTothatMember)
+		{
+			DoubleList<int> lista(5);
+			lista.Append(10);
+			lista.Append(15);
+			lista.IteratorNext();
+			if (5 == lista.IteratorPrev()->GetData())
+				Assert::AreEqual(5, lista.GetIterator()->GetData());
+			else
+				Assert::Fail();
+		}
+
+		TEST_METHOD(DoubleList_ResetIteratorSetsIteratorToFirstMember)
+		{
+			DoubleList<int>lista(5);
+			lista.Append(10);
+			lista.IteratorNext();
+			lista.ResetIterator();
+			Assert::AreEqual(5, lista.GetIterator()->GetData());
+		}
+
+		TEST_METHOD(DoubleList_ResetIteratorThrowsExceptionForNonInitLIst)
+		{
+			try {
+				DoubleList<int> lista;
+				lista.ResetIterator();
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
 	};
 }
