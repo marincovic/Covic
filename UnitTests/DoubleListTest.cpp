@@ -26,7 +26,22 @@ namespace UnitTests
 		{
 			DoubleList<int> list;
 			list.Append(5);
-			Assert::AreEqual(5, list.GetAt(1));
+			list.Append(3);
+			Assert::AreEqual(5, list.GetAt(0));
+			Assert::AreEqual(3, list.GetAt(1));
+		}
+
+		TEST_METHOD(DoubleList_GetAtThrowsExceptionForNonInitList)
+		{
+			DoubleList<int> lista;
+			try {
+				lista.GetAt(0);
+				Assert::Fail;
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
 		}
 
 		TEST_METHOD(DoubleList_RemoveAtMethodDecreasesSizeOfList)
@@ -34,17 +49,17 @@ namespace UnitTests
 			DoubleList<int> list;
 			list.Append(5);
 			list.Append(10);
-			list.RemoveAt(1);
+			list.RemoveAt(0);
 			Assert::AreEqual(1, list.Size());
 		}
 
-		TEST_METHOD(DoubleList_RemoveAtMethodForIndexZeroMovesSecondElemenToTheStartOfList)
+		TEST_METHOD(DoubleList_RemoveAtMethodForIndexZeroMovesSecondElementToTheStartOfList)
 		{
 			DoubleList<int> list;
 			list.Append(5);
 			list.Append(10);
-			list.RemoveAt(1);
-			Assert::AreEqual(5, list.GetAt(1));
+			list.RemoveAt(0);
+			Assert::AreEqual(10, list.GetAt(0));
 		}
 
 		TEST_METHOD(DoubleList_RemoveAtMethodForLastIndexRemovesLastElement)
@@ -54,6 +69,7 @@ namespace UnitTests
 			list.Append(10);
 			list.RemoveAt(list.Size() - 1);
 			Assert::AreEqual(1, list.Size());
+			Assert::AreEqual(5, list.GetAt(0));
 		}
 
 		TEST_METHOD(DoubleList_RemoveAtMethodForEmptyListThrowsException)
@@ -61,7 +77,7 @@ namespace UnitTests
 			try
 			{
 				DoubleList<int> list;
-				list.RemoveAt(1);
+				list.RemoveAt(0);
 				Assert::Fail(L"should throw exception");
 			}
 			catch (const std::out_of_range&)
@@ -70,14 +86,22 @@ namespace UnitTests
 			}
 		}
 
-		TEST_METHOD(DoubleList_InsertAtMethodForZeroIndexInsertsElementToTheBeginningOfList)
+		TEST_METHOD(DoubleList_InsertAtMethodForZeroIndexInsertsElementToTheBeginningOfEmptyList)
+		{
+			DoubleList<int> list;
+			list.InsertAt(0, 5);
+			Assert::AreEqual(1, list.Size());
+			Assert::AreEqual(5, list.GetAt(0));
+		}
+
+		TEST_METHOD(DoubleList_InsertAtMethodForZeroIndexInsertsElementInFrontOfFirstElement)
 		{
 			DoubleList<int> list;
 			list.Append(1);
-			list.InsertAt(1, 5);
+			list.InsertAt(0, 5);
 			Assert::AreEqual(2, list.Size());
+			Assert::AreEqual(5, list.GetAt(0));
 			Assert::AreEqual(1, list.GetAt(1));
-			Assert::AreEqual(5, list.GetAt(2));
 		}
 
 		TEST_METHOD(DoubleList_InsertAtMethodForLastIndexInsertsElementToTheEndOfList)
@@ -86,8 +110,8 @@ namespace UnitTests
 			list.Append(1);
 			list.InsertAt(1, 5);
 			Assert::AreEqual(2, list.Size());
-			Assert::AreEqual(1, list.GetAt(1));
-			Assert::AreEqual(5, list.GetAt(2));
+			Assert::AreEqual(1, list.GetAt(0));
+			Assert::AreEqual(5, list.GetAt(1));
 		}
 
 		TEST_METHOD(DoubleList_InsertAtMethodThrowsExceptionForInvalidIndex)
@@ -95,7 +119,6 @@ namespace UnitTests
 			try
 			{
 				DoubleList<int> list;
-				list.Append(1);
 				list.InsertAt(5, 5);
 				Assert::Fail();
 			}
@@ -104,8 +127,6 @@ namespace UnitTests
 				Assert::IsTrue(true);
 			}
 		}
-
-
 
 		//Iterator Tests
 		TEST_METHOD(DoubleList_GetIteratorThrowExceptionForNonInitList)

@@ -23,107 +23,89 @@ public:
 		++m_listSize;
 	}
 
-	const T& GetAt(int index)
+	const T& GetAt(int index) const
 	{
 		if (!m_pHead) throw std::out_of_range("List is empty");
-		if (index > Size()) throw std::out_of_range("index out of range");
+		if (index >= Size() || index < 0)
+			throw std::out_of_range("index out of range");
 
 		DoubleNode<T>* walkerNode = m_pHead;
-
-		while (index--)
-		{
-			if (index) walkerNode = walkerNode->GetNext();
-			else
-				return walkerNode->GetData();
-		}
-
+		while (--index >= 0)
+			walkerNode = walkerNode->GetNext();
+		return walkerNode->GetData();
 	}
 
-	int Size()
+	int Size() const
 	{
 		return m_listSize;
 	}
 
 	void Append(const T& value)
 	{
-		++m_listSize;
 		if (!m_pHead)
-			m_pHead = m_pTail = m_pIterator = new DoubleNode<T>{ value, nullptr, nullptr };
+			m_pHead = m_pTail = m_pIterator= new DoubleNode<T>{ value, nullptr, nullptr };
 		else
 		{
-			m_pTail->SetNext(new DoubleNode<T>(value,nullptr,m_pTail));
-			m_pTail = m_pTail->GetNext();
-
+			DoubleNode<T>* pPrevious = m_pTail;
+			DoubleNode<T>* pNew = new DoubleNode<T>{ value, nullptr, pPrevious };
+			m_pTail = pNew;
+			pPrevious->SetNext(pNew);
 		}
+		++m_listSize;
 	}
 
 	void InsertAt(int index, const T& value)
 	{
+		if (index > Size() || index < 0)
+			throw std::out_of_range("Index out of range");
 
-		if (!m_pHead)
+		if (index == 0)
 		{
-			m_pHead = m_pTail = new DoubleNode<T>{ value,nullptr,nullptr };
-			++m_listSize;
-			return;
+			m_pHead = new DoubleNode<T>{ value, m_pHead, nullptr };
+			if (!m_pTail)
+				m_pTail = m_pHead;
 		}
-		if (index > Size()) throw std::out_of_range("Index out of range");
-
 		else
 		{
-
 			DoubleNode<T>* walkerNode = m_pHead;
-
-			do
-			{
-				if (index - 1) walkerNode = walkerNode->GetNext();
-				else
-				{
-					DoubleNode<T>* newNode = new DoubleNode<T>(value, walkerNode, walkerNode->GetNext());
-					walkerNode->SetNext(newNode);
-					if (newNode->GetNext())
-						newNode->GetNext()->SetPrevious(newNode);
-					else
-						m_pTail = newNode;
-					++m_listSize;
-					return;
-				}
-			} while (index--);
+			while (--index > 0)
+				walkerNode = walkerNode->GetNext();
+			DoubleNode<T>* newNode = new DoubleNode<T>{ value, walkerNode->GetNext(), walkerNode };
+			walkerNode->SetNext(newNode);
+			if (newNode->GetNext())
+				newNode->GetNext()->SetPrevious(newNode);
+			else
+				m_pTail = newNode;
 		}
+		++m_listSize;
 	}
 
 	void RemoveAt(int index)
 	{
-		if (!m_pHead)
-			throw std::out_of_range("List is empty");
-
-		if (index > Size())
+		if (index >= Size() || index < 0)
 			throw std::out_of_range("Index out of range");
-		--m_listSize;
 		if (index == 0)
 		{
 			DoubleNode<T>* toBeRemoved = m_pHead;
 			m_pHead = m_pHead->GetNext();
+			if (!m_pHead)
+				m_pTail = nullptr;
 			delete toBeRemoved;
 		}
 		else
 		{
 			DoubleNode<T>* walkerNode = m_pHead;
-			do
-			{
-				if (index - 1) walkerNode = walkerNode->GetPrevious();
-				else
-				{
-					DoubleNode<T>* toBeRemoved = walkerNode->GetNext();
-					walkerNode->SetNext(toBeRemoved->GetNext());
-					if (toBeRemoved->GetNext())
-						toBeRemoved->GetNext()->SetPrevious(walkerNode);
-					else
-						m_pTail = toBeRemoved->GetPrevious();
-					delete toBeRemoved;
-					return;
-				}
-			} while (index--);
+			while (--index > 0)
+				walkerNode = walkerNode->GetNext();
+			DoubleNode<T>* toBeRemoved = walkerNode->GetNext();
+			walkerNode->SetNext(toBeRemoved->GetNext());
+			if (toBeRemoved->GetNext())
+				toBeRemoved->GetNext()->SetPrevious(walkerNode);
+			else
+				m_pTail = toBeRemoved->GetPrevious();
+			delete toBeRemoved;
 		}
+		--m_listSize;
 	}
 
 	DoubleNode<T>* IteratorNext() { 
@@ -140,12 +122,13 @@ public:
 
 	DoubleNode<T>* IteratorPrev() { 
 		if (!Size()) throw std::out_of_range("List is Empty");
-		m_pIterator = m_pIterator->GetPrevious();
-		if (!m_pIterator)
+		if (m_pIterator == m_pHead)
 		{
 			ResetIterator();
-			throw std::out_of_range("List iterator is at list end. Reset iterator or set to new index");
+			throw std::out_of_range("List iterator is at begining of list. Reset iterator or set to new index");
 		}
+		m_pIterator = m_pIterator->GetPrevious();
+		
 
 		return m_pIterator;
 	}
@@ -173,6 +156,4 @@ public:
 
 		m_pIterator = m_pHead;
 	}
-
-private:
 };
