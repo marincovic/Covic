@@ -8,15 +8,23 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 /* 
 Prijedlog izgleda stabla za testove
 
-				10
-			/		\
-		/				\
-		5				15
-		/\				/\
-	/		\		/		\
-	2		8		12		18
-
-	{10,5,15,2,8,12,18}
+															50
+														/		\
+													/				\
+												/						\
+											/								\
+										/										\
+									30											  70
+										\										/	\
+											40								  60	 80
+										/		\									/	 \
+									/				\							  75	   85
+								35					45							/	\	   /\
+							/		\			/		\					  72	77	 82  88
+						   32		37		   42		48					  /\	/	 /   /\
+											/		   / \				    71  73 76  81  86  89
+										  41		 46	  49			
+	{50,30,40,35,32,37,45,42,41,48,46,49,70,60,80,75,72,71,73,77,76,85,82,88,86,89,81}
 	prikaz stabla u obliku vektora
 
 */
@@ -26,7 +34,7 @@ namespace UnitTests
 	TEST_CLASS(BSTTest)
 	{
 	public:
-		std::vector<int> listOfNodesForTest{ 10,5,15,2,8,12,18 };
+		std::vector<int> listOfNodesForTest{ 50,30,40,35,32,37,45,42,41,48,46,49,70,60,80,75,72,71,73,77,76,85,82,88,86,89,81 };
 
 		TEST_METHOD(BST_AddFirstMemberTest) {
 			BST<int> bst(3);
@@ -50,7 +58,7 @@ namespace UnitTests
 			BST<int> bst;
 			for (int i = 0; i < listOfNodesForTest.size(); ++i)
 				bst.AddNewMember(listOfNodesForTest.at(i));
-			Assert::AreEqual(7,bst.TreeSize());
+			Assert::AreEqual(27,bst.TreeSize());
 		}
 		
 		TEST_METHOD(BST_ContainsFunctionReturnsTrueIfMemberExists) {
@@ -72,23 +80,19 @@ namespace UnitTests
 			for (int i = 0; i < listOfNodesForTest.size(); ++i)
 				bst.AddNewMember(listOfNodesForTest.at(i));
 
-			bst.Delete(15);
+			bst.DeleteMember(77);
 
-			Assert::IsFalse(bst.Contains(15));
+			Assert::AreEqual(26, (int)bst.PostOrderOutput().size());
 
 		}
 		
 		TEST_METHOD(BST_DeleteThrowsExceptionIfTreeDoesNotContainMember) {
 			try {
-				BST<int> bst(5);
-				bst.AddNewMember(2);
-				bst.AddNewMember(7);
-				bst.AddNewMember(9);
-				bst.AddNewMember(11);
-				bst.AddNewMember(10);
-				bst.AddNewMember(12);
+				BST<int> bst;
+				for (int i = 0; i < listOfNodesForTest.size(); ++i)
+					bst.AddNewMember(listOfNodesForTest.at(i));
 
-				bst.Delete(11);
+				bst.DeleteMember(11);
 				Assert::Fail();
 			}
 			catch (std::out_of_range&)
@@ -141,7 +145,7 @@ namespace UnitTests
 			BST<int> bst;
 			for (int i = 0; i < listOfNodesForTest.size(); ++i)
 				bst.AddNewMember(listOfNodesForTest.at(i));
-			Assert::AreEqual(7, (int)bst.PreOrderOutput().size());
+			Assert::AreEqual(27, (int)bst.PreOrderOutput().size());
 		}
 
 		TEST_METHOD(BST_PostOrderReturnsAllMembersOfBSTInRightOrder)
@@ -149,7 +153,7 @@ namespace UnitTests
 			BST<int> bst;
 			for (int i = 0; i < listOfNodesForTest.size(); ++i)
 				bst.AddNewMember(listOfNodesForTest.at(i));
-			Assert::AreEqual(7, (int)bst.PostOrderOutput().size());
+			Assert::AreEqual(27, (int)bst.PostOrderOutput().size());
 		}
 		
 		TEST_METHOD(BST_InOrderReturnsAllMembersOfBSTInRightOrder)
@@ -157,7 +161,7 @@ namespace UnitTests
 			BST<int> bst;
 			for (int i = 0; i < listOfNodesForTest.size(); ++i)
 				bst.AddNewMember(listOfNodesForTest.at(i));
-			Assert::AreEqual(7, (int)bst.InOrderOutput().size());
+			Assert::AreEqual(27, (int)bst.InOrderOutput().size());
 		}
 
 		TEST_METHOD(BST_ForEmptyTreeTreeSizeFunctionReturnsZero)

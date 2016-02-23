@@ -27,6 +27,32 @@ public:
 	void SetDataOfNode(const T& newNodeData) { m_dataOfNode = newNodeData; }
 	const T& GetDataOfNode() { return m_dataOfNode; }
 
+	void SetChildrenToNullptr() {
+		m_pLeftChild = nullptr;
+		m_pRightChild = nullptr;
+	}
+	bool DoesNotHaveChildren()
+	{
+		if (m_pLeftChild || m_pRightChild)
+			return false;
+		else return true;
+	}
+	bool HasBoathChildren()
+	{
+		if (m_pLeftChild && m_pRightChild)
+			return true;
+		else return false;
+	}
+	BSTNode<T>* ReturnSingleChild()
+	{
+		if (!m_pLeftChild && m_pRightChild)
+			return m_pRightChild;
+		else if (m_pLeftChild && !m_pRightChild)
+			return m_pLeftChild;
+		else return nullptr;
+			
+	}
+
 private:
 	BSTNode<T>* m_pLeftChild;
 	BSTNode<T>* m_pRightChild;

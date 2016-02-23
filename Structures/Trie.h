@@ -4,6 +4,8 @@
 #include<vector>
 #include <string>
 #define ASCII 27
+
+//delete funkciju potrebno napisati
 class Trie {
 public:
 	Trie() 
