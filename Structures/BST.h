@@ -195,7 +195,13 @@ private:
 		}
 		if (!tempTreeWalkerVariable->GetLeftTreeSide())
 		{
-			tempTreeWalkerVariable->SetLeftTreeSide(firstLeftMemberOfNodeTobeDeleted->GetLeftTreeSide());
+			tempTreeWalkerVariable->SetLeftTreeSide(firstLeftMemberOfNodeTobeDeleted);
+			BSTNode<T>* tempVariable = FatherOfMember(tempTreeWalkerVariable->GetDataOfNode());
+			if (tempVariable->GetLeftTreeSide() == tempVariable)
+				tempVariable->SetLeftTreeSide(nullptr);
+			else
+				tempVariable->SetRightTreeSide(nullptr);
+
 			return tempTreeWalkerVariable;
 		}
 		
@@ -248,7 +254,7 @@ private:
 	{
 		if (!root)
 			return;
-		vectorOfPreOrderSortedMembers.insert(vectorOfPreOrderSortedMembers.begin(), root->GetDataOfNode());
+		vectorOfPreOrderSortedMembers.insert(vectorOfPreOrderSortedMembers.end(), root->GetDataOfNode());
 		NLR(vectorOfPreOrderSortedMembers, root->GetLeftTreeSide());
 		NLR(vectorOfPreOrderSortedMembers, root->GetRightTreeSide());
 
@@ -258,9 +264,9 @@ private:
 	{
 		if (!root)
 			return;
-		NLR(vectorOfPreOrderSortedMembers, root->GetLeftTreeSide());
-		vectorOfPreOrderSortedMembers.insert(vectorOfPreOrderSortedMembers.begin(), root->GetDataOfNode());
-		NLR(vectorOfPreOrderSortedMembers, root->GetRightTreeSide());
+		LNR(vectorOfPreOrderSortedMembers, root->GetLeftTreeSide());
+		vectorOfPreOrderSortedMembers.insert(vectorOfPreOrderSortedMembers.end(), root->GetDataOfNode());
+		LNR(vectorOfPreOrderSortedMembers, root->GetRightTreeSide());
 
 	}
 	
@@ -268,9 +274,9 @@ private:
 	{
 		if (!root)
 			return;
-		NLR(vectorOfPreOrderSortedMembers, root->GetLeftTreeSide());
-		NLR(vectorOfPreOrderSortedMembers, root->GetRightTreeSide());
-		vectorOfPreOrderSortedMembers.insert(vectorOfPreOrderSortedMembers.begin(), root->GetDataOfNode());
+		LRN(vectorOfPreOrderSortedMembers, root->GetLeftTreeSide());
+		LRN(vectorOfPreOrderSortedMembers, root->GetRightTreeSide());
+		vectorOfPreOrderSortedMembers.insert(vectorOfPreOrderSortedMembers.end(), root->GetDataOfNode());
 
 	}
 

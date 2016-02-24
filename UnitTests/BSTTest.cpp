@@ -82,7 +82,19 @@ namespace UnitTests
 
 			bst.DeleteMember(77);
 
-			Assert::AreEqual(26, (int)bst.PostOrderOutput().size());
+			Assert::AreEqual(26, (int)bst.InOrderOutput().size());
+
+			bst.DeleteMember(80);
+
+			Assert::AreEqual(25, (int)bst.InOrderOutput().size());
+
+			bst.DeleteMember(50);
+
+			Assert::AreEqual(24, (int)bst.InOrderOutput().size());
+
+			bst.DeleteMember(49);
+
+			Assert::AreEqual(23, (int)bst.InOrderOutput().size());
 
 		}
 		
