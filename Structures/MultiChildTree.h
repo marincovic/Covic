@@ -15,7 +15,9 @@ public:
 		if (PreAlocateNextNodeVector)
 			m_nextNodeVector.insert(m_nextNodeVector.begin(), m_numberOfChildren, nullptr);
 	}
-	virtual ~MultiChildTree() {}
+	virtual ~MultiChildTree() {
+		m_nextNodeVector.~vector();
+	}
 
 	const T& GetDataOfNode() { return m_dataMember; }
 	void SetDataOfNode(const T& NewDataOfNode) { m_dataMember = NewDataOfNode; }
@@ -35,6 +37,19 @@ public:
 		else
 			throw std::out_of_range("Adress out of bound");
 	}
+
+	bool NodeHasChildren()
+	{
+		for (int iterator = 0; iterator < m_nextNodeVector.size(); ++iterator)
+		{
+			if (m_nextNodeVector.at(iterator))
+				return true;
+		}
+
+		return false;
+	}
+
+	const std::vector<MultiChildTree<T>*> ReturnAllChildren() { return m_nextNodeVector; }
 
 private:
 	T m_dataMember;
