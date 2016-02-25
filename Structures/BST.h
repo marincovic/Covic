@@ -97,6 +97,11 @@ public:
 				fatherOFMemberToBeDeleted->SetRightTreeSide(memberToBeDeleted->ReturnSingleChild());
 			
 			delete memberToBeDeleted;
+			--m_treeSize;
+			if (dataOfMemberToBeDeleted < m_pTreeRoot->GetDataOfNode())
+				--m_leftTreeSize;
+			else
+				--m_rightTreeSize;
 			return;
 		}
 
@@ -110,6 +115,11 @@ public:
 				fatherOFMemberToBeDeleted->SetRightTreeSide(tempNode);
 			memberToBeDeleted->SetChildrenToNullptr();
 			delete memberToBeDeleted;
+			--m_treeSize;
+			if (dataOfMemberToBeDeleted < m_pTreeRoot->GetDataOfNode())
+				--m_leftTreeSize;
+			else
+				--m_rightTreeSize;
 			return;
 		}
 
@@ -129,15 +139,19 @@ public:
 			tempNode->SetChildrenToNullptr();
 			delete tempNode;
 		}
-		
+		--m_treeSize;
+		if (dataOfMemberToBeDeleted < m_pTreeRoot->GetDataOfNode())
+			--m_leftTreeSize;
+		else
+			--m_rightTreeSize;
 			
 	};
 
-	int TreeSize() { return m_treeSize = TreeCount(m_pTreeRoot); }
+	int TreeSize() { return m_treeSize; }
 
-	int LeftTreeSize() { return m_leftTreeSize = TreeCount(m_pTreeRoot->GetLeftTreeSide()); }
+	int LeftTreeSize() { return m_leftTreeSize; }
 
-	int RightTreeSize() { return m_rightTreeSize = TreeCount(m_pTreeRoot->GetRightTreeSide()); }
+	int RightTreeSize() { return m_rightTreeSize; }
 
 	std::vector<T> PreOrderOutput() { 
 		if (!m_pTreeRoot)
