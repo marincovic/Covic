@@ -145,11 +145,20 @@
   <ItemGroup>
     <ClInclude Include="BST.h" />
     <ClInclude Include="BSTNode.h" />
-    <ClInclude Include="DoubleList.h" />
-    <ClInclude Include="DoubleNode.h" />
-    <ClInclude Include="List.h" />
+    <ClInclude Include="DoubleList.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="DoubleNode.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="GraphNode.h" />
+    <ClInclude Include="List.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="MultiChildTree.h" />
-    <ClInclude Include="Node.h" />
+    <ClInclude Include="Node.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Trie.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
