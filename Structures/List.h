@@ -74,12 +74,11 @@ public:
 
 	void Append(const T& value)
 	{
-		
-
 		if (!m_pHead)
 		{
 			m_pHead = new Node<T>(value);
 			m_pIterator = m_pTail = m_pHead;
+			++m_listSize;
 			return;
 		}
 		m_pTail->SetNext(new Node<T>(value));
@@ -109,7 +108,6 @@ public:
 		if (!m_pHead) throw std::out_of_range("List is Empty");
 		if (index > Size())
 			throw std::out_of_range("Index is out of list range");
-		--m_listSize;
 
 		if (index == 0)
 			m_pHead = m_pHead->GetNext();
@@ -118,6 +116,7 @@ public:
 			Node<T>* pPrevious = GetNextPtrAt(index - 1);
 			pPrevious->SetNext(pPrevious->GetNext());
 		}
+		--m_listSize;
 	}
 
 	const T Pop()

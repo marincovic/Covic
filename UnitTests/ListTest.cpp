@@ -191,7 +191,8 @@ namespace UnitTests
 			list.Append(5);
 			list.Append(10);
 			list.Append(15);
-			Assert::AreEqual(10, list.IteratorNext()->GetData());
+			list.IteratorNext();
+			Assert::AreEqual(10, list.GetIteratorData());
 		}
 
 		TEST_METHOD(List_IteratorThrowExceptionForNonInitLIst)
