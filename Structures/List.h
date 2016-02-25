@@ -38,24 +38,22 @@ public:
 
 	const T& GetIteratorData()
 	{
+		
 		if (m_pIterator)
 			return m_pIterator->GetData();
 		else
+			throw std::out_of_range("List is at it's end");
+	}
+
+	
+
+	void IteratorNext() {
+		if (!m_pHead)
 			throw std::out_of_range("List Is Empty");
-	}
-
-	Node<T>* GetIteratorPointer() {
 		if (m_pIterator)
-			return m_pIterator;
+			m_pIterator = m_pIterator->GetNext();
 		else
-			throw std::out_of_range("List is Empty");
-	}
-
-	Node<T>* IteratorNext() {
-		if (m_pIterator)
-			return m_pIterator = m_pIterator->GetNext();
-		else
-			throw std::out_of_range("List is Empty");
+			throw std::out_of_range("List is at it's end");
 	}
 
 	void IteratorRestart() { m_pIterator = m_pHead; }
@@ -76,7 +74,7 @@ public:
 
 	void Append(const T& value)
 	{
-		++m_listSize;
+		
 
 		if (!m_pHead)
 		{
@@ -86,11 +84,12 @@ public:
 		}
 		m_pTail->SetNext(new Node<T>(value));
 		m_pTail = m_pTail->GetNext();
+		++m_listSize;
 	}
 
 	void InsertAt(int index, const T& value)
 	{
-		++m_listSize;
+		
 		if (index == 0)
 			m_pHead = new Node<T>(value, m_pHead);
 		else
@@ -99,6 +98,7 @@ public:
 			Node<T>* pNext = pPrev->GetNext();
 			pPrev->SetNext(new Node<T>(value, pNext));
 		}
+		++m_listSize;
 	}
 
 	const T& GetAt(int index) { return GetNextPtrAt(index)->GetData(); }
@@ -205,6 +205,13 @@ public:
 	}
 
 private:
+	Node<T>* GetIteratorPointer() {
+		if (m_pIterator)
+			return m_pIterator;
+		else
+			throw std::out_of_range("List is Empty");
+	}
+
 	Node<T>* GetNextPtrAt(int index) const
 	{
 		if (!m_pHead)
