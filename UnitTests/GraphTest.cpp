@@ -91,5 +91,37 @@ namespace UnitTests
 			Assert::AreEqual(10, node.GetChildAtIndex(0)->GetDataOfMember());
 		}
 
+		TEST_METHOD(GraphMove_GetWeightOfMovementToChildAtIndexReturnsWeightOfMovementForIndex0)
+		{
+			GraphNode<int> node(5);
+			node.AddMember(10, 10);
+			node.AddMember(15, 15);
+			Assert::AreEqual(10.0, node.GetWeightOfMovementToChildAtIndex(0));
+		}
+		TEST_METHOD(GraphMove_GetWeightOfMovementToChildAtIndexThrowExceptionIfNodeHasNoChildren)
+		{
+			GraphNode<int> node;
+			try {
+				node.GetWeightOfMovementToChildAtIndex(0);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+		TEST_METHOD(GraphNode_GetWeightOfMovementToChildAtIndexTrowsExceptionIfIndexOutOfRange)
+		{
+			GraphNode<int> node;
+			try {
+				node.GetWeightOfMovementToChildAtIndex(1);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+
 	};
 }

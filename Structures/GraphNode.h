@@ -1,6 +1,16 @@
 #pragma once
 
 #include<vector>
+template <typename pToNode>
+struct MovementStruct
+{
+public:
+	MovementStruct(pToNode nextNode, double weightOfMovement) : m_nextNode(nextNode), m_weightOfMovement(weightOfMovement) {};
+	pToNode m_nextNode;
+	double m_weightOfMovement;
+};
+
+
 
 template<typename typeOfDataMember>
 class GraphNode
@@ -12,9 +22,9 @@ public:
 
 	const typeOfDataMember& GetDataOfMember() { return m_dataMember; }
 
-	void AddMember(const typeOfDataMember& dataOfNewMember)
+	void AddMember(const typeOfDataMember& dataOfNewMember, double weightOfMovement = 0)
 	{
-		m_vectorOfAllChildren.push_back(new GraphNode<typeOfDataMember>(dataOfNewMember));
+		m_vectorOfAllChildren.push_back(MovementStruct<GraphNode<typeOfDataMember>*>(new GraphNode<typeOfDataMember> (dataOfNewMember),weightOfMovement));
 	}
 
 	void RemoveMember(const typeOfDataMember& dataOfMemberToBeDeleted) {
@@ -24,7 +34,7 @@ public:
 
 		for (auto it = m_vectorOfAllChildren.begin(); it != m_vectorOfAllChildren.end(); ++it)
 		{
-			if ((*it)->GetDataOfMember() == dataOfMemberToBeDeleted)
+			if ((*it).m_nextNode->GetDataOfMember() == dataOfMemberToBeDeleted)
 				it = m_vectorOfAllChildren.erase(it);
 		}
 	}
@@ -33,7 +43,7 @@ public:
 		if (!NumberOfChildren()) return false;
 		for (auto it = m_vectorOfAllChildren.begin(); it != m_vectorOfAllChildren.end(); ++it)
 		{
-			if ((*it)->GetDataOfMember() == dataOfMemberToBeSearchedFor)
+			if ((*it).m_nextNode->GetDataOfMember() == dataOfMemberToBeSearchedFor)
 				return true;
 		}
 		return false;
@@ -44,12 +54,19 @@ public:
 
 		if (index > NumberOfChildren()) throw std::out_of_range("Index out of range");
 
-		return m_vectorOfAllChildren.at(index);
+		return m_vectorOfAllChildren.at(index).m_nextNode;
+	}
+	double GetWeightOfMovementToChildAtIndex(size_t index)
+	{
+		if (!NumberOfChildren()) throw std::out_of_range("Node has no children");
+		if (index > NumberOfChildren()) throw std::out_of_range("Index out of range");
+
+		return m_vectorOfAllChildren.at(index).m_weightOfMovement;
 	}
 
 	int NumberOfChildren() { return m_vectorOfAllChildren.size(); }
 
 private:
 	typeOfDataMember m_dataMember;
-	std::vector<GraphNode<typeOfDataMember>*> m_vectorOfAllChildren;
+	std::vector<MovementStruct<GraphNode<typeOfDataMember>*>> m_vectorOfAllChildren;
 };
