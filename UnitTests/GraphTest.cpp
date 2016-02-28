@@ -24,6 +24,13 @@ namespace UnitTests
 			GraphNode<int> node(9);
 			Assert::AreEqual(9, node.GetDataOfMember());
 		}
+		TEST_METHOD(GraphNode_SetDataOfMemberSetsDataToNewValue)
+		{
+			GraphNode<int> node(5);
+			Assert::AreEqual(5, node.GetDataOfMember());
+			node.SetDataOfMember(9);
+			Assert::AreEqual(9, node.GetDataOfMember());
+		}
 
 		TEST_METHOD(GraphNode_ContainsReturnsTrueIfMemberDoesContainChild)
 		{

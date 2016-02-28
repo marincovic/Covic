@@ -1,6 +1,8 @@
 #pragma once
 
 #include<vector>
+#include<memory>
+
 template <typename pToNode>
 struct MovementStruct
 {
@@ -21,10 +23,11 @@ public:
 	~GraphNode() { m_vectorOfAllChildren.clear(); }
 
 	const typeOfDataMember& GetDataOfMember() { return m_dataMember; }
+	void SetDataOfMember(const typeOfDataMember& newDataMember) { m_dataMember = newDataMember; }
 
 	void AddMember(const typeOfDataMember& dataOfNewMember, double weightOfMovement = 0)
 	{
-		m_vectorOfAllChildren.push_back(MovementStruct<GraphNode<typeOfDataMember>*>(new GraphNode<typeOfDataMember> (dataOfNewMember),weightOfMovement));
+		m_vectorOfAllChildren.push_back(MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>(std::make_shared<GraphNode<typeOfDataMember>> (dataOfNewMember),weightOfMovement));
 	}
 
 	void RemoveMember(const typeOfDataMember& dataOfMemberToBeDeleted) {
@@ -54,7 +57,7 @@ public:
 
 		if (index > NumberOfChildren()) throw std::out_of_range("Index out of range");
 
-		return m_vectorOfAllChildren.at(index).m_nextNode;
+		return m_vectorOfAllChildren.at(index).m_nextNode.get();
 	}
 	double GetWeightOfMovementToChildAtIndex(size_t index)
 	{
@@ -68,5 +71,5 @@ public:
 
 private:
 	typeOfDataMember m_dataMember;
-	std::vector<MovementStruct<GraphNode<typeOfDataMember>*>> m_vectorOfAllChildren;
+	std::vector<MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>> m_vectorOfAllChildren;
 };
