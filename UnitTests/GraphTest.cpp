@@ -64,6 +64,32 @@ namespace UnitTests
 			}
 		}
 
+		TEST_METHOD(GraphNode_GetChildAtIndexReturnsNullptrIfNodeDoesNotContainChildren)
+		{
+			GraphNode<int> node(5);
+			Assert::IsTrue(node.GetChildAtIndex(0) == nullptr);
+		}
+		TEST_METHOD(GraphNode_GetChildAtIndexThrowExceptionIfIndexsOutOfRange)
+		{
+			GraphNode<int> node(5);
+			node.AddMember(10);
+			try
+			{
+				node.GetChildAtIndex(9);
+				Assert::Fail;
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+		TEST_METHOD(GraphNode_GetChildAtIndexReturnsChildFromGivenIndex)
+		{
+			GraphNode<int> node(5);
+			node.AddMember(10);
+			node.AddMember(15);
+			Assert::AreEqual(10, node.GetChildAtIndex(0)->GetDataOfMember());
+		}
 
 	};
 }

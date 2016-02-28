@@ -39,6 +39,14 @@ public:
 		return false;
 	}
 
+	GraphNode<typeOfDataMember>* GetChildAtIndex(size_t index) {
+		if (!NumberOfChildren()) return nullptr;
+
+		if (index > NumberOfChildren()) throw std::out_of_range("Index out of range");
+
+		return m_vectorOfAllChildren.at(index);
+	}
+
 	int NumberOfChildren() { return m_vectorOfAllChildren.size(); }
 
 private:
