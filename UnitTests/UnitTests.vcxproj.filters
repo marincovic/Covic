@@ -27,7 +27,10 @@
     <ClCompile Include="TrieTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GraphTest.cpp">
+    <ClCompile Include="GraphNodeTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphtest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

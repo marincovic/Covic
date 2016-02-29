@@ -1,68 +1,35 @@
 #include "CppUnitTest.h"
-#include "../Structures/GraphNode.h"
+#include "../Structures/Graph.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UnitTests
 {
-	TEST_CLASS(GraphNode2Test)
+	TEST_CLASS(GraphTest)
 	{
 	public:
-		TEST_METHOD(GraphNode_SizeReturns0ForNodeWithNoChildren)
+		//Testovi za NumberOfNodesInGraph metodu
+		TEST_METHOD(Graph_NumberOfNodesInGraphReturns1ForGraphWithOnlyOneNode)
 		{
-			GraphNode<int> node;
-			Assert::AreEqual(0, node.NumberOfChildren());
-		}
-		TEST_METHOD(GraphNode_AddMemberAddsNewMemberToTheList) {
-			GraphNode<int> node(5);
-			node.AddMember(10);
-			Assert::AreEqual(1, node.NumberOfChildren());
+			Graph<int> graph(5);
+			Assert::AreEqual(1, graph.NumberOfNodesInGraph());
 		}
 
-		TEST_METHOD(GraphNode_GetDataMemberReturnsDataOfMember)
+		//Testovi za AddNode Metodu
+		TEST_METHOD(Graph_AddNodeAddsNewNodeToGraph)
 		{
-			GraphNode<int> node(9);
-			Assert::AreEqual(9, node.GetDataOfMember());
+			Graph<int> graph(5);
+			graph.AddNode(9, 5);
+			Assert::AreEqual(2, graph.NumberOfNodesInGraph());
 		}
-		TEST_METHOD(GraphNode_SetDataOfMemberSetsDataToNewValue)
+		TEST_METHOD(Graph_AddNodeThrowsExceptionWhenParentDoesNotExist)
 		{
-			GraphNode<int> node(5);
-			Assert::AreEqual(5, node.GetDataOfMember());
-			node.SetDataOfMember(9);
-			Assert::AreEqual(9, node.GetDataOfMember());
-		}
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
 
-		TEST_METHOD(GraphNode_ContainsReturnsTrueIfMemberDoesContainChild)
-		{
-			GraphNode<int> node(5);
-			node.AddMember(10);
-			node.AddMember(15);
-			Assert::IsTrue(node.ContainsMember(10));
-		}
-		TEST_METHOD(GraphNode_ContainsMemberReturnsFalseIfMemberDoesContainChild)
-		{
-			GraphNode<int> node(5);
-			node.AddMember(10);
-			node.AddMember(15);
-			Assert::IsFalse(node.ContainsMember(6));
-		}
-
-		TEST_METHOD(GraphNode_RemoveRemovesChildFromList)
-		{
-			GraphNode<int> node(5);
-			node.AddMember(10);
-			node.AddMember(15);
-			node.RemoveMember(10);
-			Assert::IsFalse(node.ContainsMember(10));
-			Assert::AreEqual(1, node.NumberOfChildren());
-		}
-		TEST_METHOD(GraphNode_RemoveMemberThrowExceptionIfNodeDoesNotContainChild)
-		{
-			GraphNode<int> node(5);
-			node.AddMember(10);
-			node.AddMember(15);
 			try {
-				node.RemoveMember(9);
+				graph.AddNode(9, 3);
 				Assert::Fail();
 			}
 			catch (std::out_of_range&)
@@ -71,18 +38,36 @@ namespace UnitTests
 			}
 		}
 
-		TEST_METHOD(GraphNode_GetChildAtIndexReturnsNullptrIfNodeDoesNotContainChildren)
+
+		//Testovi za ContainsNode metodu
+		TEST_METHOD(Graph_ContainsNodeReturnsTrueIfDataIsPartOfANodeInGraph)
 		{
-			GraphNode<int> node(5);
-			Assert::IsTrue(node.GetChildAtIndex(0) == nullptr);
+			Graph<int> graph(5);
+			graph.AddNode(6,5);
+
+			Assert::IsTrue(graph.ContainsNode(5));
 		}
-		TEST_METHOD(GraphNode_GetChildAtIndexThrowExceptionIfIndexsOutOfRange)
+		TEST_METHOD(Graph_ContainsNodeReturnsFalseIfDataIsNotPartOfANodeInGraph)
 		{
-			GraphNode<int> node(5);
-			node.AddMember(10);
-			try
-			{
-				node.GetChildAtIndex(9);
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+
+			Assert::IsFalse(graph.ContainsNode(7));
+		}
+
+		//Testovi za DataOfNode metodu
+		TEST_METHOD(Graph_DataOfNodeReturnsDataOfNodeToBeFound)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			Assert::AreEqual(5, graph.DataOfNode(5));
+		}
+		TEST_METHOD(Graph_DataOfNodeThrowsExceptionIfMemberIsNotFound)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			try {
+				graph.DataOfNode(7);
 				Assert::Fail;
 			}
 			catch (std::out_of_range&)
@@ -90,26 +75,53 @@ namespace UnitTests
 				Assert::IsTrue(true);
 			}
 		}
-		TEST_METHOD(GraphNode_GetChildAtIndexReturnsChildFromGivenIndex)
+		
+		//Testovi za CheckConnection metodu
+		TEST_METHOD(Graph_CheckConnectionReturnsTrueIfParentIsConnectedToChild)
 		{
-			GraphNode<int> node(5);
-			node.AddMember(10);
-			node.AddMember(15);
-			Assert::AreEqual(10, node.GetChildAtIndex(0)->GetDataOfMember());
-		}
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
 
-		TEST_METHOD(GraphMove_GetWeightOfMovementToChildAtIndexReturnsWeightOfMovementForIndex0)
-		{
-			GraphNode<int> node(5);
-			node.AddMember(10, 10);
-			node.AddMember(15, 15);
-			Assert::AreEqual(10.0, node.GetWeightOfMovementToChildAtIndex(0));
+			Assert::IsTrue(graph.CheckConnection(5, 6));
 		}
-		TEST_METHOD(GraphMove_GetWeightOfMovementToChildAtIndexThrowExceptionIfNodeHasNoChildren)
+		TEST_METHOD(Graph_CheckConnectionReturnsFalseIfParentIsNotConnectedToChild)
 		{
-			GraphNode<int> node;
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
+
+			Assert::IsFalse(graph.CheckConnection(5, 7));
+		}
+		TEST_METHOD(Graph_CheckConnectionReturnsFalseIfParentDoesNotExist)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			Assert::IsFalse(graph.CheckConnection(7, 5));
+		}
+		TEST_METHOD(Graph_CheckConnectionReturnsFalseIfChildDoesNotExist)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			Assert::IsFalse(graph.CheckConnection(6, 7));
+		}
+		
+		//Testovi za ConnectNode
+		TEST_METHOD(Graph_ConnectNodeConnectsParentAndChildNode)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
+
+			graph.ConnectNode(5, 7);
+		}
+		TEST_METHOD(Graph_ConnectNodeThrowsExceptionWhenChildDoesNotExist)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
+
 			try {
-				node.GetWeightOfMovementToChildAtIndex(0);
+				graph.ConnectNode(5, 8);
 				Assert::Fail();
 			}
 			catch (std::out_of_range&)
@@ -117,11 +129,14 @@ namespace UnitTests
 				Assert::IsTrue(true);
 			}
 		}
-		TEST_METHOD(GraphNode_GetWeightOfMovementToChildAtIndexTrowsExceptionIfIndexOutOfRange)
+		TEST_METHOD(Graph_ConnectNodeThrowsExceptionWhenParentDoesNotExist)
 		{
-			GraphNode<int> node;
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
+
 			try {
-				node.GetWeightOfMovementToChildAtIndex(1);
+				graph.ConnectNode(9, 5);
 				Assert::Fail();
 			}
 			catch (std::out_of_range&)
@@ -130,5 +145,85 @@ namespace UnitTests
 			}
 		}
 
-	};
+		//Testovi za RemoveConnection
+		TEST_METHOD(Graph_RemoveConnectionRemovesConnectionBetweenParentAndChild)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
+			graph.ConnectNode(5, 7);
+			graph.ConnectNode(7, 6);
+			graph.RemoveConnection(5, 6);
+
+			Assert::IsFalse(graph.CheckConnection(5, 6));
+		}
+		TEST_METHOD(Graph_RemoveConnectionThrowsExceptionWhenFatherDoesNotExist)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
+
+			try {
+				graph.RemoveConnection(9, 5);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+		TEST_METHOD(Graph_RemoveConnectionThrowExceptionWhenChildDoesNotExist)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
+			try {
+				graph.RemoveConnection(5, 9);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+
+		//Testovi za RemoveNode
+		TEST_METHOD(Graph_RemoveNodeRemovesNodeFromGraph)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
+
+			graph.RemoveNode(5, 7);
+			Assert::IsFalse(graph.ContainsNode(5));
+		}
+		TEST_METHOD(Graph_RemoveNodeThrowsExceptionWhenParentDoesNotExis)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
+			try {
+				graph.RemoveNode(5, 9);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+		TEST_METHOD(Graph_RemoveNodeThrowsExceptionWhenNodeToBeDeletedDoesNotExis)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			graph.AddNode(7, 6);
+			try {
+				graph.RemoveNode(9, 5);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+};
 }
