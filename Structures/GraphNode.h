@@ -21,18 +21,18 @@ class GraphNode
 public:
 	GraphNode() {};
 	GraphNode(typeOfDataMember dataMember) : m_dataMember(dataMember) {};
-	~GraphNode() { m_vectorOfAllChildren.clear(); }
+	~GraphNode() {}
 
 	const typeOfDataMember& GetDataOfMember() { return m_dataMember; }
 	void SetDataOfMember(const typeOfDataMember& newDataMember) { m_dataMember = newDataMember; }
 
 	void AddMember(const typeOfDataMember& dataOfNewMember, double weightOfMovement = 0)
 	{
-		m_vectorOfAllChildren.push_back(MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>(std::make_shared<GraphNode<typeOfDataMember>> (dataOfNewMember),weightOfMovement));
+		m_vectorOfAllChildren.push_back(new MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>(std::make_shared<GraphNode<typeOfDataMember>> (dataOfNewMember),weightOfMovement));
 	}
 	void AddMember(GraphNode<typeOfDataMember>* pToNewNode, double weightOfMovement = 0)
 	{
-		MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>> tempPointer(std::shared_ptr<GraphNode<typeOfDataMember>>(pToNewNode), weightOfMovement);
+		auto tempPointer = new MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>(std::shared_ptr<GraphNode<typeOfDataMember>>(pToNewNode), weightOfMovement);
 		m_vectorOfAllChildren.push_back(tempPointer);
 	}
 
@@ -43,7 +43,7 @@ public:
 
 		for (auto it = m_vectorOfAllChildren.begin(); it != m_vectorOfAllChildren.end(); ++it)
 		{
-			if ((*it).m_nextNode->GetDataOfMember() == dataOfMemberToBeDeleted)
+			if ((*it)->m_nextNode->GetDataOfMember() == dataOfMemberToBeDeleted)
 				it = m_vectorOfAllChildren.erase(it);
 			if (it == m_vectorOfAllChildren.end())
 				return;
@@ -57,7 +57,7 @@ public:
 
 		for (auto it = m_vectorOfAllChildren.begin(); it != m_vectorOfAllChildren.end(); ++it)
 		{
-			if ((*it).m_nextNode->GetDataOfMember() == pToMemberToBeRemoved->GetDataOfMember())
+			if ((*it)->m_nextNode->GetDataOfMember() == pToMemberToBeRemoved->GetDataOfMember())
 			{
 				it = m_vectorOfAllChildren.erase(it);
 			}
@@ -70,7 +70,7 @@ public:
 		if (!NumberOfChildren()) return false;
 		for (auto it = m_vectorOfAllChildren.begin(); it != m_vectorOfAllChildren.end(); ++it)
 		{
-			if ((*it).m_nextNode->GetDataOfMember() == dataOfMemberToBeSearchedFor)
+			if ((*it)->m_nextNode->GetDataOfMember() == dataOfMemberToBeSearchedFor)
 				return true;
 		}
 		return false;
@@ -81,19 +81,19 @@ public:
 
 		if (index > NumberOfChildren()) throw std::out_of_range("Index out of range");
 
-		return m_vectorOfAllChildren.at(index).m_nextNode.get();
+		return m_vectorOfAllChildren.at(index)->m_nextNode.get();
 	}
 	double GetWeightOfMovementToChildAtIndex(size_t index)
 	{
 		if (!NumberOfChildren()) throw std::out_of_range("Node has no children");
 		if (index > NumberOfChildren()) throw std::out_of_range("Index out of range");
 
-		return m_vectorOfAllChildren.at(index).m_weightOfMovement;
+		return m_vectorOfAllChildren.at(index)->m_weightOfMovement;
 	}
 
 	int NumberOfChildren() { return m_vectorOfAllChildren.size(); }
 
 private:
 	typeOfDataMember m_dataMember;
-	std::vector<MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>> m_vectorOfAllChildren;
+	std::vector<MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>*> m_vectorOfAllChildren;
 };

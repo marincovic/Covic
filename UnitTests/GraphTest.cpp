@@ -194,8 +194,8 @@ namespace UnitTests
 			graph.AddNode(6, 5);
 			graph.AddNode(7, 6);
 
-			graph.RemoveNode(5, 7);
-			Assert::IsFalse(graph.ContainsNode(5));
+			graph.RemoveNode(6, 5);
+			Assert::IsFalse(graph.ContainsNode(6));
 		}
 		TEST_METHOD(Graph_RemoveNodeThrowsExceptionWhenParentDoesNotExis)
 		{
