@@ -8,6 +8,7 @@ struct MovementStruct
 {
 public:
 	MovementStruct(pToNode nextNode, double weightOfMovement) : m_nextNode(nextNode), m_weightOfMovement(weightOfMovement) {};
+	~MovementStruct() {};
 	pToNode m_nextNode;
 	double m_weightOfMovement;
 };
@@ -29,6 +30,11 @@ public:
 	{
 		m_vectorOfAllChildren.push_back(MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>(std::make_shared<GraphNode<typeOfDataMember>> (dataOfNewMember),weightOfMovement));
 	}
+	void AddMember(GraphNode<typeOfDataMember>* pToNewNode, double weightOfMovement = 0)
+	{
+		MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>> tempPointer(std::shared_ptr<GraphNode<typeOfDataMember>>(pToNewNode), weightOfMovement);
+		m_vectorOfAllChildren.push_back(tempPointer);
+	}
 
 	void RemoveMember(const typeOfDataMember& dataOfMemberToBeDeleted) {
 		if (!NumberOfChildren()) throw std::out_of_range("Node has no children");
@@ -39,6 +45,24 @@ public:
 		{
 			if ((*it).m_nextNode->GetDataOfMember() == dataOfMemberToBeDeleted)
 				it = m_vectorOfAllChildren.erase(it);
+			if (it == m_vectorOfAllChildren.end())
+				return;
+		}
+	}
+	void RemoveMember(GraphNode<typeOfDataMember>* pToMemberToBeRemoved)
+	{
+		if (!NumberOfChildren()) throw std::out_of_range("Node has no children");
+
+		if (!ContainsMember(pToMemberToBeRemoved->GetDataOfMember())) throw std::out_of_range("Node has no child with contaning that data");
+
+		for (auto it = m_vectorOfAllChildren.begin(); it != m_vectorOfAllChildren.end(); ++it)
+		{
+			if ((*it).m_nextNode->GetDataOfMember() == pToMemberToBeRemoved->GetDataOfMember())
+			{
+				it = m_vectorOfAllChildren.erase(it);
+			}
+			if (it == m_vectorOfAllChildren.end())
+					return;
 		}
 	}
 

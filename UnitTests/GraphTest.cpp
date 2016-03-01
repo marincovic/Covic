@@ -38,7 +38,6 @@ namespace UnitTests
 			}
 		}
 
-
 		//Testovi za ContainsNode metodu
 		TEST_METHOD(Graph_ContainsNodeReturnsTrueIfDataIsPartOfANodeInGraph)
 		{
@@ -113,6 +112,7 @@ namespace UnitTests
 			graph.AddNode(7, 6);
 
 			graph.ConnectNode(5, 7);
+			Assert::IsTrue(graph.CheckConnection(5, 7));
 		}
 		TEST_METHOD(Graph_ConnectNodeThrowsExceptionWhenChildDoesNotExist)
 		{
@@ -225,5 +225,5 @@ namespace UnitTests
 				Assert::IsTrue(true);
 			}
 		}
-};
+	};
 }

@@ -18,6 +18,14 @@ namespace UnitTests
 			node.AddMember(10);
 			Assert::AreEqual(1, node.NumberOfChildren());
 		}
+		TEST_METHOD(GraphNode_AddMemberAddsConnectionToExistingNode)
+		{
+			GraphNode<int> node1(5);
+			GraphNode<int>* node2 = new GraphNode<int>(10);
+			node1.AddMember(node2);
+			Assert::AreEqual(1, node1.NumberOfChildren());
+		}
+
 
 		TEST_METHOD(GraphNode_GetDataMemberReturnsDataOfMember)
 		{
@@ -69,6 +77,15 @@ namespace UnitTests
 			{
 				Assert::IsTrue(true);
 			}
+		}
+		TEST_METHOD(GraphNode_RemoveMemberRemovesExistingChildFromList)
+		{
+			GraphNode<int> node1(5);
+			GraphNode<int>* node2 = new GraphNode<int>(10);
+			node1.AddMember(node2);
+			node1.RemoveMember(node2);
+
+			Assert::AreEqual(0, node1.NumberOfChildren());
 		}
 
 		TEST_METHOD(GraphNode_GetChildAtIndexReturnsNullptrIfNodeDoesNotContainChildren)
