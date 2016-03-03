@@ -3,10 +3,62 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
+
+
+
+
+
+//prijedlog za izgled grafa
+//Graf je usmijerenog tipa te napreduje s lijeva na desno
+//
+//
+//
+//	  /---->6---->7----->8\
+//	5         \---->13     ->12
+//	\ \---->9---->10--->11/ /
+//   \---->14-------------15
+//
+//te Tezine pomaka
+//5 -> 6 = 1
+//6 -> 7 = 1
+//7 -> 8 = 2
+//8 -> 12 = 5
+//6 -> 13 = 6
+//13 -> 8 = 7
+//13 -> 12 = 9
+//5 -> 9 = 3
+//9 -> 10 = 3
+//10 -> 11 = 0
+//11 -> 12 = 1
+//5 -> 14 = 5
+//14 -> 15 = 1
+//15 -> 12 = 7
+
+//najkraca ruta za prelazak preko grafa je 5 -> 6 -> 13 -> 12 i ruta 5 -> 14 -> 15 ->12
+// njalaksa ruta za prelazak preko grafa 5 -> 9-> 10 -> 11 -> 12
 namespace UnitTests
 {
 	TEST_CLASS(GraphTest)
 	{
+	private:
+		void GrafConstruction(Graph<int>& Graph)
+		{
+			Graph.AddNode(6, 5, 1);
+			Graph.AddNode(9, 5, 3);
+			Graph.AddNode(14, 5, 5);
+			Graph.AddNode(7, 6, 1);
+			Graph.AddNode(13, 6, 6);
+			Graph.AddNode(8, 7, 2);
+			Graph.AddNode(8, 13, 7);
+			Graph.AddNode(12, 8, 5);
+			Graph.AddNode(13, 12, 9);
+			Graph.AddNode(10, 9, 3);
+			Graph.AddNode(11, 10, 0);
+			Graph.AddNode(12, 11, 1);
+			Graph.AddNode(14, 9, 2);
+			Graph.AddNode(15, 14, 1);
+			Graph.AddNode(12, 15, 7);
+		}
 	public:
 		//Testovi za NumberOfNodesInGraph metodu
 		TEST_METHOD(Graph_NumberOfNodesInGraphReturns1ForGraphWithOnlyOneNode)
@@ -37,7 +89,7 @@ namespace UnitTests
 				Assert::IsTrue(true);
 			}
 		}
-
+		
 		//Testovi za ContainsNode metodu
 		TEST_METHOD(Graph_ContainsNodeReturnsTrueIfDataIsPartOfANodeInGraph)
 		{
@@ -67,7 +119,7 @@ namespace UnitTests
 			graph.AddNode(6, 5);
 			try {
 				graph.DataOfNode(7);
-				Assert::Fail;
+				Assert::Fail();
 			}
 			catch (std::out_of_range&)
 			{
@@ -145,14 +197,19 @@ namespace UnitTests
 			}
 		}
 
+		// Testovi za metodu u kojoj se povezuje AddNode i ConnectNode
+		TEST_METHOD(Graph_AddNodeConnectsTwoExistingNodes)
+		{
+			Graph<int> graf(5);
+			GrafConstruction(graf);
+			Assert::AreEqual(11, graf.NumberOfNodesInGraph());
+		}
+
 		//Testovi za RemoveConnection
 		TEST_METHOD(Graph_RemoveConnectionRemovesConnectionBetweenParentAndChild)
 		{
 			Graph<int> graph(5);
-			graph.AddNode(6, 5);
-			graph.AddNode(7, 6);
-			graph.ConnectNode(5, 7);
-			graph.ConnectNode(7, 6);
+			GrafConstruction(graph);
 			graph.RemoveConnection(5, 6);
 
 			Assert::IsFalse(graph.CheckConnection(5, 6));
@@ -191,11 +248,12 @@ namespace UnitTests
 		TEST_METHOD(Graph_RemoveNodeRemovesNodeFromGraph)
 		{
 			Graph<int> graph(5);
-			graph.AddNode(6, 5);
-			graph.AddNode(7, 6);
+			GrafConstruction(graph);
 
 			graph.RemoveNode(6, 5);
 			Assert::IsFalse(graph.ContainsNode(6));
+			Assert::IsTrue(graph.CheckConnection(5, 7));
+			Assert::IsTrue(graph.CheckConnection(5, 13));
 		}
 		TEST_METHOD(Graph_RemoveNodeThrowsExceptionWhenParentDoesNotExis)
 		{

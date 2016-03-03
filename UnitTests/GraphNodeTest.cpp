@@ -21,7 +21,7 @@ namespace UnitTests
 		TEST_METHOD(GraphNode_AddMemberAddsConnectionToExistingNode)
 		{
 			GraphNode<int> node1(5);
-			GraphNode<int>* node2 = new GraphNode<int>(10);
+			std::shared_ptr<GraphNode<int>> node2 = std::make_shared<GraphNode<int>>(10);
 			node1.AddMember(node2);
 			Assert::AreEqual(1, node1.NumberOfChildren());
 		}
@@ -81,7 +81,7 @@ namespace UnitTests
 		TEST_METHOD(GraphNode_RemoveMemberRemovesExistingChildFromList)
 		{
 			GraphNode<int> node1(5);
-			GraphNode<int>* node2 = new GraphNode<int>(10);
+			std::shared_ptr<GraphNode<int>> node2 = std::make_shared<GraphNode<int>>(10);
 			node1.AddMember(node2);
 			node1.RemoveMember(node2);
 
@@ -100,7 +100,7 @@ namespace UnitTests
 			try
 			{
 				node.GetChildAtIndex(9);
-				Assert::Fail;
+				Assert::Fail();
 			}
 			catch (std::out_of_range&)
 			{

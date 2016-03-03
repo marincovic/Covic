@@ -28,12 +28,11 @@ public:
 
 	void AddMember(const typeOfDataMember& dataOfNewMember, double weightOfMovement = 0)
 	{
-		m_vectorOfAllChildren.push_back(new MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>(std::make_shared<GraphNode<typeOfDataMember>> (dataOfNewMember),weightOfMovement));
+		m_vectorOfAllChildren.push_back(std::make_unique<MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>>(std::make_shared<GraphNode<typeOfDataMember>> (dataOfNewMember),weightOfMovement));
 	}
-	void AddMember(GraphNode<typeOfDataMember>* pToNewNode, double weightOfMovement = 0)
+	void AddMember(std::shared_ptr<GraphNode<typeOfDataMember>> pToNewNode, double weightOfMovement = 0)
 	{
-		auto tempPointer = new MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>(std::shared_ptr<GraphNode<typeOfDataMember>>(pToNewNode), weightOfMovement);
-		m_vectorOfAllChildren.push_back(tempPointer);
+		m_vectorOfAllChildren.push_back(std::make_unique<MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>>(pToNewNode, weightOfMovement));
 	}
 
 	void RemoveMember(const typeOfDataMember& dataOfMemberToBeDeleted) {
@@ -49,7 +48,7 @@ public:
 				return;
 		}
 	}
-	void RemoveMember(GraphNode<typeOfDataMember>* pToMemberToBeRemoved)
+	void RemoveMember(std::shared_ptr<GraphNode<typeOfDataMember>> pToMemberToBeRemoved)
 	{
 		if (!NumberOfChildren()) throw std::out_of_range("Node has no children");
 
@@ -76,12 +75,12 @@ public:
 		return false;
 	}
 
-	GraphNode<typeOfDataMember>* GetChildAtIndex(size_t index) {
+	std::shared_ptr<GraphNode<typeOfDataMember>> GetChildAtIndex(size_t index) {
 		if (!NumberOfChildren()) return nullptr;
 
 		if (index > NumberOfChildren()) throw std::out_of_range("Index out of range");
 
-		return m_vectorOfAllChildren.at(index)->m_nextNode.get();
+		return m_vectorOfAllChildren.at(index)->m_nextNode;
 	}
 	double GetWeightOfMovementToChildAtIndex(size_t index)
 	{
@@ -95,5 +94,5 @@ public:
 
 private:
 	typeOfDataMember m_dataMember;
-	std::vector<MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>*> m_vectorOfAllChildren;
+	std::vector<std::unique_ptr<MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>>> m_vectorOfAllChildren;
 };

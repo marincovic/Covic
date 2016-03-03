@@ -15,21 +15,37 @@ public:
 
 	void AddNode(const dataType& dataOfNewNode, const dataType& dataOfFatherNode,
 		double weightOfMovement = 0) {
-		GraphNode<dataType>* pToFatherNode=nullptr;
-		std::vector<GraphNode<dataType>*> mapOfVisitedNodes;
+		std::shared_ptr<GraphNode<dataType>> pToFatherNode = nullptr;
+		std::shared_ptr<GraphNode<dataType>> pToPosibleChildNode = nullptr;
+		std::vector<std::shared_ptr<GraphNode<dataType>>> mapOfVisitedNodes;
 
-		FindNode(m_root.get(), dataOfFatherNode, mapOfVisitedNodes, pToFatherNode);
-
+		FindNode(m_root, dataOfFatherNode, mapOfVisitedNodes, pToFatherNode);
 		if (!pToFatherNode) throw std::out_of_range("Father node does notExist");
+
+		mapOfVisitedNodes.clear();
+
+		FindNode(m_root, dataOfNewNode, mapOfVisitedNodes, pToPosibleChildNode);
+		if (pToPosibleChildNode)
+		{
+			
+			try {
+				ConnectNode(pToFatherNode, pToPosibleChildNode);
+			}
+			catch (std::out_of_range& error)
+			{
+				throw error;
+			}
+			return;
+		}
 
 		pToFatherNode->AddMember(dataOfNewNode,weightOfMovement);
 		++m_numberOfNodes;
 	};
 	const dataType& DataOfNode(const dataType& dataToBeSearchedBy) {
-		GraphNode<dataType>* pToFatherNode = nullptr;
-		std::vector<GraphNode<dataType>*> mapOfVisitedNodes;
+		std::shared_ptr<GraphNode<dataType>> pToFatherNode = nullptr;
+		std::vector<std::shared_ptr<GraphNode<dataType>>> mapOfVisitedNodes;
 
-		FindNode(m_root.get(), dataToBeSearchedBy, mapOfVisitedNodes, pToFatherNode);
+		FindNode(m_root, dataToBeSearchedBy, mapOfVisitedNodes, pToFatherNode);
 
 		if (!pToFatherNode) throw std::out_of_range("Father node does notExist");
 
@@ -38,10 +54,10 @@ public:
 
 
 	bool ContainsNode(const dataType& dataToBeFound) {
-		GraphNode<dataType>* pToFatherNode = nullptr;
-		std::vector<GraphNode<dataType>*> mapOfVisitedNodes;
+		std::shared_ptr<GraphNode<dataType>> pToFatherNode = nullptr;
+		std::vector<std::shared_ptr<GraphNode<dataType>>> mapOfVisitedNodes;
 
-		FindNode(m_root.get(), dataToBeFound, mapOfVisitedNodes, pToFatherNode);
+		FindNode(m_root, dataToBeFound, mapOfVisitedNodes, pToFatherNode);
 
 		if (!pToFatherNode)
 			return false;
@@ -50,14 +66,14 @@ public:
 
 	};
 	bool CheckConnection(const dataType& dataOfParentNode, const dataType& dataOfChildNode) {
-		GraphNode<dataType>* pToFatherNode = nullptr;
-		GraphNode<dataType>* pToChildNode = nullptr;
-		std::vector<GraphNode<dataType>*> mapOfVisitedNodes;
+		std::shared_ptr<GraphNode<dataType>> pToFatherNode = nullptr;
+		std::shared_ptr<GraphNode<dataType>> pToChildNode = nullptr;
+		std::vector<std::shared_ptr<GraphNode<dataType>>> mapOfVisitedNodes;
 
-		FindNode(m_root.get(), dataOfParentNode, mapOfVisitedNodes, pToFatherNode);
+		FindNode(m_root, dataOfParentNode, mapOfVisitedNodes, pToFatherNode);
 
 		mapOfVisitedNodes.clear();
-		FindNode(m_root.get(), dataOfChildNode, mapOfVisitedNodes, pToChildNode);
+		FindNode(m_root, dataOfChildNode, mapOfVisitedNodes, pToChildNode);
 
 		if (!pToFatherNode || !pToChildNode) return false;
 
@@ -69,44 +85,44 @@ public:
 
 	void ConnectNode(const dataType& dataOfParentNode, const dataType& dataOfChildNode,
 		double weightOfMovement = 0) {
-		GraphNode<dataType>* pToFatherNode = nullptr;
-		GraphNode<dataType>* pToChildNode = nullptr;
-		std::vector<GraphNode<dataType>*> mapOfVisitedNodes;
+		std::shared_ptr<GraphNode<dataType>> pToFatherNode = nullptr;
+		std::shared_ptr<GraphNode<dataType>> pToChildNode = nullptr;
+		std::vector<std::shared_ptr<GraphNode<dataType>>> mapOfVisitedNodes;
 
-		FindNode(m_root.get(), dataOfParentNode, mapOfVisitedNodes, pToFatherNode);
+		FindNode(m_root, dataOfParentNode, mapOfVisitedNodes, pToFatherNode);
 		if (!pToFatherNode) throw std::out_of_range("Father node does not exist");
 
 		mapOfVisitedNodes.clear();
-		FindNode(m_root.get(), dataOfChildNode, mapOfVisitedNodes, pToChildNode);
+		FindNode(m_root, dataOfChildNode, mapOfVisitedNodes, pToChildNode);
 		if (!pToChildNode) throw std::out_of_range("Child node does not exist");
 
 		pToFatherNode->AddMember(pToChildNode,weightOfMovement);
 	};
 	void RemoveConnection(const dataType& dataOfParentNode, const dataType& dataOfChildNode) {
-		GraphNode<dataType>* pToFatherNode = nullptr;
-		GraphNode<dataType>* pToChildNode = nullptr;
-		std::vector<GraphNode<dataType>*> mapOfVisitedNodes;
+		std::shared_ptr<GraphNode<dataType>> pToFatherNode = nullptr;
+		std::shared_ptr<GraphNode<dataType>> pToChildNode = nullptr;
+		std::vector<std::shared_ptr<GraphNode<dataType>>> mapOfVisitedNodes;
 
-		FindNode(m_root.get(), dataOfParentNode, mapOfVisitedNodes, pToFatherNode);
+		FindNode(m_root, dataOfParentNode, mapOfVisitedNodes, pToFatherNode);
 		if (!pToFatherNode) throw std::out_of_range("Father node does not exist");
 
 		mapOfVisitedNodes.clear();
-		FindNode(m_root.get(), dataOfChildNode, mapOfVisitedNodes, pToChildNode);
+		FindNode(m_root, dataOfChildNode, mapOfVisitedNodes, pToChildNode);
 		if (!pToChildNode) throw std::out_of_range("Child node does not exist");
 		pToFatherNode->RemoveMember(pToChildNode);
 	};
 
 	void RemoveNode(const dataType& dataOfNodeToBeRemoved, const dataType& dataOfFutureNodeParent) {
-		GraphNode<dataType>* pToFatherNode = nullptr;
-		GraphNode<dataType>* pToNodeToBeRemoved = nullptr;
-		GraphNode<dataType>* pToInheritorNode = nullptr;
-		std::vector<GraphNode<dataType>*> mapOfVisitedNodes;
+		std::shared_ptr<GraphNode<dataType>> pToFatherNode = nullptr;
+		std::shared_ptr<GraphNode<dataType>> pToNodeToBeRemoved = nullptr;
+		std::shared_ptr<GraphNode<dataType>> pToInheritorNode = nullptr;
+		std::vector<std::shared_ptr<GraphNode<dataType>>> mapOfVisitedNodes;
 
-		FindNode(m_root.get(), dataOfNodeToBeRemoved, mapOfVisitedNodes, pToNodeToBeRemoved);
+		FindNode(m_root, dataOfNodeToBeRemoved, mapOfVisitedNodes, pToNodeToBeRemoved);
 		if (!pToNodeToBeRemoved) throw std::out_of_range("Child node does not exist");
 		mapOfVisitedNodes.clear();
 
-		FindNode(m_root.get(), dataOfFutureNodeParent, mapOfVisitedNodes, pToInheritorNode);
+		FindNode(m_root, dataOfFutureNodeParent, mapOfVisitedNodes, pToInheritorNode);
 		if (!pToInheritorNode) throw std::out_of_range("Node that inharits connection has not been found");
 		mapOfVisitedNodes.clear();
 
@@ -115,11 +131,11 @@ public:
 			pToInheritorNode->AddMember(pToNodeToBeRemoved->GetChildAtIndex(i));
 		}
 
-		FindFatherOfNode(m_root.get(), dataOfNodeToBeRemoved, mapOfVisitedNodes, pToFatherNode);
+		FindFatherOfNode(m_root, dataOfNodeToBeRemoved, mapOfVisitedNodes, pToFatherNode);
 		for (; 
 			pToFatherNode; 
 			pToFatherNode = nullptr, 
-			FindFatherOfNode(m_root.get(), dataOfNodeToBeRemoved, mapOfVisitedNodes, pToFatherNode))
+			FindFatherOfNode(m_root, dataOfNodeToBeRemoved, mapOfVisitedNodes, pToFatherNode))
 		{
 
 			pToFatherNode->RemoveMember(pToNodeToBeRemoved);
@@ -132,10 +148,17 @@ public:
 
 	int NumberOfNodesInGraph() { return m_numberOfNodes; }
 private:
-	void FindFatherOfNode(GraphNode<dataType>* walkerVariable,
+	void ConnectNode(std::shared_ptr<GraphNode<dataType>> fatherNode, std::shared_ptr<GraphNode<dataType>> childNode)
+	{
+		if (!fatherNode) throw std::out_of_range("Father node does not exist");
+		if (!childNode) throw std::out_of_range("Child node does not Exist");
+
+		fatherNode->AddMember(childNode);
+	}
+	void FindFatherOfNode(std::shared_ptr<GraphNode<dataType>> walkerVariable,
 		const dataType& dataOfChildNode,
-		std::vector<GraphNode<dataType>*>& mapOfVisitedNodes,
-		GraphNode<dataType>*& fatherOfChildNode)
+		std::vector<std::shared_ptr<GraphNode<dataType>>>& mapOfVisitedNodes,
+		std::shared_ptr<GraphNode<dataType>>& fatherOfChildNode)
 	{
 		if (!walkerVariable) return;
 		if (fatherOfChildNode) return;
@@ -161,10 +184,10 @@ private:
 		}
 	}
 
-	void FindNode(GraphNode<dataType>* walkerVariable,
+	void FindNode(std::shared_ptr<GraphNode<dataType>> walkerVariable,
 		const dataType& dataOfNodeToBefound,
-		std::vector<GraphNode<dataType>*>& mapOfVisitedNodes,
-		GraphNode<dataType>*& nodeToBefound
+		std::vector<std::shared_ptr<GraphNode<dataType>>>& mapOfVisitedNodes,
+		std::shared_ptr<GraphNode<dataType>>& nodeToBefound
 		)
 	{
 		if (!walkerVariable) return;
