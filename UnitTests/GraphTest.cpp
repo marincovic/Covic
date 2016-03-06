@@ -74,6 +74,7 @@ namespace UnitTests
 			graph.AddNode(9, 5);
 			Assert::AreEqual(2, graph.NumberOfNodesInGraph());
 		}
+
 		TEST_METHOD(Graph_AddNodeThrowsExceptionWhenParentDoesNotExist)
 		{
 			Graph<int> graph(5);
@@ -98,6 +99,7 @@ namespace UnitTests
 
 			Assert::IsTrue(graph.ContainsNode(5));
 		}
+
 		TEST_METHOD(Graph_ContainsNodeReturnsFalseIfDataIsNotPartOfANodeInGraph)
 		{
 			Graph<int> graph(5);
@@ -111,14 +113,15 @@ namespace UnitTests
 		{
 			Graph<int> graph(5);
 			graph.AddNode(6, 5);
-			Assert::AreEqual(5, graph.DataOfNode(5));
+			Assert::AreEqual(5, graph.GetPredecessorId(5));
 		}
+
 		TEST_METHOD(Graph_DataOfNodeThrowsExceptionIfMemberIsNotFound)
 		{
 			Graph<int> graph(5);
 			graph.AddNode(6, 5);
 			try {
-				graph.DataOfNode(7);
+				graph.GetPredecessorId(7);
 				Assert::Fail();
 			}
 			catch (std::out_of_range&)
@@ -163,7 +166,7 @@ namespace UnitTests
 			graph.AddNode(6, 5);
 			graph.AddNode(7, 6);
 
-			graph.ConnectNode(5, 7);
+			graph.ConnectNodes(5, 7);
 			Assert::IsTrue(graph.CheckConnection(5, 7));
 		}
 		TEST_METHOD(Graph_ConnectNodeThrowsExceptionWhenChildDoesNotExist)
@@ -173,7 +176,7 @@ namespace UnitTests
 			graph.AddNode(7, 6);
 
 			try {
-				graph.ConnectNode(5, 8);
+				graph.ConnectNodes(5, 8);
 				Assert::Fail();
 			}
 			catch (std::out_of_range&)
@@ -188,7 +191,7 @@ namespace UnitTests
 			graph.AddNode(7, 6);
 
 			try {
-				graph.ConnectNode(9, 5);
+				graph.ConnectNodes(9, 5);
 				Assert::Fail();
 			}
 			catch (std::out_of_range&)
