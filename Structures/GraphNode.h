@@ -1,98 +1,126 @@
 #pragma once
 
-#include<vector>
-#include<memory>
+#include <vector>
+#include <memory>
+#include <algorithm>
 
-template <typename pToNode>
-struct MovementStruct
+template <typename TNextNode>
+class MovementStruct
 {
 public:
-	MovementStruct(pToNode nextNode, double weightOfMovement) : m_nextNode(nextNode), m_weightOfMovement(weightOfMovement) {};
+	MovementStruct(TNextNode nextNode, double weightOfMovement) : m_nextNode(nextNode), m_weightOfMovement(weightOfMovement) {};
 	~MovementStruct() {};
-	pToNode m_nextNode;
+
+	const TNextNode& GetNextNode() const { return m_nextNode; }
+	double GetWeightOfMovement() const { return m_weightOfMovement; }
+private:
+	// zlatno pravilo enkapsulacije: podatkovni èlanovi UVIJEK moraju biti privatni!
+	TNextNode m_nextNode;
 	double m_weightOfMovement;
 };
 
-
-
-template<typename typeOfDataMember>
+// prema dogovoru, parametar predloška poèinje velikim slovom
+template<typename TId>
 class GraphNode
 {
+	using Movement = MovementStruct<std::shared_ptr<GraphNode<TId>>>;
+	template <typename TId> friend class Graph;
 public:
-	GraphNode() {};
-	GraphNode(typeOfDataMember dataMember) : m_dataMember(dataMember) {};
+	// mislim da prazni èvor uopæe nema smisla
+	// GraphNode() {};
+	GraphNode(const TId& id) : m_id(id) {};
 	~GraphNode() {}
 
-	const typeOfDataMember& GetDataOfMember() { return m_dataMember; }
-	void SetDataOfMember(const typeOfDataMember& newDataMember) { m_dataMember = newDataMember; }
+	const TId& GetId() { return m_id; }
+	
+	// mislim da ovo ne treba (zašto biste mijenjali id èvora?)
+	//void SetDataOfMember(const TId& newDataMember) { m_id = newDataMember; }
 
-	void AddMember(const typeOfDataMember& dataOfNewMember, double weightOfMovement = 0)
+	void AddSuccessor(const TId& successorId, double weightOfMovement = 0)
 	{
-		m_vectorOfAllChildren.push_back(std::make_unique<MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>>(std::make_shared<GraphNode<typeOfDataMember>> (dataOfNewMember),weightOfMovement));
-	}
-	void AddMember(std::shared_ptr<GraphNode<typeOfDataMember>> pToNewNode, double weightOfMovement = 0)
-	{
-		m_vectorOfAllChildren.push_back(std::make_unique<MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>>(pToNewNode, weightOfMovement));
+		m_movements.emplace_back(std::make_shared<GraphNode<TId>>(successorId), weightOfMovement);
 	}
 
-	void RemoveMember(const typeOfDataMember& dataOfMemberToBeDeleted) {
-		if (!NumberOfChildren()) throw std::out_of_range("Node has no children");
+	void RemoveSuccessor(const TId& successorId)
+	{
+		if (!NumberOfSuccessors())
+			throw std::out_of_range("Node has no successors");
 
-		if (!ContainsMember(dataOfMemberToBeDeleted)) throw std::out_of_range("Node has no child with contaning that data");
-
-		for (auto it = m_vectorOfAllChildren.begin(); it != m_vectorOfAllChildren.end(); ++it)
+		const auto& found = std::find_if(m_movements.cbegin(), m_movements.cend(), [&successorId](const Movement& movement) { return successorId == movement.GetNextNode()->GetId(); });
+		if (found != m_movements.cend())
 		{
-			if ((*it)->m_nextNode->GetDataOfMember() == dataOfMemberToBeDeleted)
-				it = m_vectorOfAllChildren.erase(it);
-			if (it == m_vectorOfAllChildren.end())
-				return;
+			m_movements.erase(found);
+			return;
 		}
+		throw std::out_of_range("Node has no successor with that id");
 	}
-	void RemoveMember(std::shared_ptr<GraphNode<typeOfDataMember>> pToMemberToBeRemoved)
+
+	bool HasSuccessor(const TId& successorId) const
 	{
-		if (!NumberOfChildren()) throw std::out_of_range("Node has no children");
-
-		if (!ContainsMember(pToMemberToBeRemoved->GetDataOfMember())) throw std::out_of_range("Node has no child with contaning that data");
-
-		for (auto it = m_vectorOfAllChildren.begin(); it != m_vectorOfAllChildren.end(); ++it)
-		{
-			if ((*it)->m_nextNode->GetDataOfMember() == pToMemberToBeRemoved->GetDataOfMember())
-			{
-				it = m_vectorOfAllChildren.erase(it);
-			}
-			if (it == m_vectorOfAllChildren.end())
-					return;
-		}
+		return std::find_if(m_movements.cbegin(), m_movements.cend(), [&successorId](const Movement& movement) { return successorId == movement.GetNextNode()->GetId(); }) != m_movements.cend();
 	}
 
-	bool ContainsMember(const typeOfDataMember& dataOfMemberToBeSearchedFor) {
-		if (!NumberOfChildren()) return false;
-		for (auto it = m_vectorOfAllChildren.begin(); it != m_vectorOfAllChildren.end(); ++it)
-		{
-			if ((*it)->m_nextNode->GetDataOfMember() == dataOfMemberToBeSearchedFor)
-				return true;
-		}
-		return false;
-	}
+	// ne vidim realnog razloga zašto biste nasljednike dohvaæali preko cjelobrojnog indeksa? 
+	// Na taj naèin posredno otkrivate da su nasljednici pohranjeni u vektoru
+	//const TId& GetSuccessorId(size_t index)
+	//{
+	//	return GetSuccessor(index)->m_id;
+	//}
 
-	std::shared_ptr<GraphNode<typeOfDataMember>> GetChildAtIndex(size_t index) {
-		if (!NumberOfChildren()) return nullptr;
+	//double GetWeightOfMovementToSuccessor(size_t index)
+	//{
+	//	if (!NumberOfSuccessors())
+	//		throw std::out_of_range("Node has no children");
+	//	if (index > NumberOfSuccessors())
+	//		throw std::out_of_range("Index out of range");
 
-		if (index > NumberOfChildren()) throw std::out_of_range("Index out of range");
+	//	return m_successors.at(index)->GetWeightOfMovement();
+	//}
 
-		return m_vectorOfAllChildren.at(index)->m_nextNode;
-	}
-	double GetWeightOfMovementToChildAtIndex(size_t index)
+	double GetWeightOfMovementToSuccessor(const TId& id) const
 	{
-		if (!NumberOfChildren()) throw std::out_of_range("Node has no children");
-		if (index > NumberOfChildren()) throw std::out_of_range("Index out of range");
+		if (!HasSuccessor(id))
+			throw std::out_of_range("Node has no successor with this id");
 
-		return m_vectorOfAllChildren.at(index)->m_weightOfMovement;
+		return GetMovement(id)->GetWeightOfMovement();
 	}
 
-	int NumberOfChildren() { return m_vectorOfAllChildren.size(); }
+	size_t NumberOfSuccessors() const { return m_movements.size(); }
 
 private:
-	typeOfDataMember m_dataMember;
-	std::vector<std::unique_ptr<MovementStruct<std::shared_ptr<GraphNode<typeOfDataMember>>>>> m_vectorOfAllChildren;
+	// ova metoda mora biti private jer njome otvarate prikaz implementacije (shared_ptr) prema vanjskom kodu
+	std::shared_ptr<GraphNode<TId>> GetSuccessor(size_t index) const
+	{
+		// budite dosljedni a ne jednom vraæati nullptr a u svim ostalim sluèajevima bacati iznimku!
+		//if (!NumberOfChildren())
+		//	return nullptr;
+		if (!NumberOfSuccessors())
+			throw std::out_of_range("Node has no children");
+
+		if (index > NumberOfSuccessors())
+			throw std::out_of_range("Index out of range");
+
+		return m_movements.at(index).GetNextNode();
+	}
+
+	const Movement* GetMovement(const TId& id) const
+	{
+		const auto& found = std::find_if(m_movements.cbegin(), m_movements.cend(), [&id](const Movement& movement) { return id == movement.GetNextNode()->GetId(); });
+		return found != m_movements.cend() ? &*found : nullptr;
+	}
+
+	// zašto otkrivati internu implementaciju (shared_ptr)?
+	void AddSuccessor(std::shared_ptr<GraphNode<TId>> newSuccessor, double weightOfMovement = 0)
+	{
+		m_movements.emplace_back(newSuccessor, weightOfMovement);
+	}
+
+	void RemoveSuccessor(std::shared_ptr<GraphNode<TId>> successor)
+	{
+		RemoveSuccessor(successor->GetId());
+	}
+
+private:
+	TId m_id;
+	std::vector<Movement> m_movements;
 };
