@@ -89,20 +89,31 @@ public:
 		return predecessor->HasSuccessor(successor->GetId());
 	}
 
+	void SetWeightOfMovementConnectingTwoNodes(const TId& firstNodeId, const TId& secondNodeId, double weightOfMovement = 0)
+	{
+		std::shared_ptr<GraphNode<TId>> firstNode = nullptr;
+		std::shared_ptr<GraphNode<TId>> secondNode = nullptr;
+		
+		FindPredecessorAndSuccessor(firstNodeId, secondNodeId, firstNode, secondNode);
+		
+		firstNode->SetWeightOfMovementToSuccessor(secondNodeId, weightOfMovement);
+	}
+
+	double GetWeightOfMovementConnectingTwoNodes(const TId& firstNodeId, const TId& secondNodeId)
+	{
+		std::shared_ptr<GraphNode<TId>> firstNode = nullptr;
+		std::shared_ptr<GraphNode<TId>> secondNode = nullptr;
+
+		FindPredecessorAndSuccessor(firstNodeId, secondNodeId, firstNode, secondNode);
+
+		return firstNode->GetWeightOfMovementToSuccessor(secondNodeId);
+	}
+
 	void ConnectNodes(const TId& predecessorId, const TId& successorId, double weightOfMovement = 0)
 	{
 		std::shared_ptr<GraphNode<TId>> predecessor = nullptr;
 		std::shared_ptr<GraphNode<TId>> successor = nullptr;
-		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
-
-		FindSuccessor(m_root, predecessorId, visitedNodes, predecessor);
-		if (!predecessor)
-			throw std::out_of_range("Father node does not exist");
-
-		visitedNodes.clear();
-		FindSuccessor(m_root, successorId, visitedNodes, successor);
-		if (!successor)
-			throw std::out_of_range("Child node does not exist");
+		FindPredecessorAndSuccessor(predecessorId, successorId, predecessor, successor);
 
 		predecessor->AddSuccessor(successor, weightOfMovement);
 	}
@@ -111,16 +122,9 @@ public:
 	{
 		std::shared_ptr<GraphNode<TId>> predecessor = nullptr;
 		std::shared_ptr<GraphNode<TId>> successor = nullptr;
-		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
+		
 
-		FindSuccessor(m_root, predecessorId, visitedNodes, predecessor);
-		if (!predecessor)
-			throw std::out_of_range("Father node does not exist");
-
-		visitedNodes.clear();
-		FindSuccessor(m_root, successorId, visitedNodes, successor);
-		if (!successor)
-			throw std::out_of_range("Child node does not exist");
+		FindPredecessorAndSuccessor(predecessorId, successorId, predecessor, successor);
 
 		predecessor->RemoveSuccessor(successor);
 	}
@@ -132,15 +136,7 @@ public:
 		std::shared_ptr<GraphNode<TId>> successor = nullptr;
 		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
 
-		FindSuccessor(m_root, idToRemove, visitedNodes, pToNodeToBeRemoved);
-		if (!pToNodeToBeRemoved)
-			throw std::out_of_range("Successor node does not exist");
-		visitedNodes.clear();
-
-		FindSuccessor(m_root, newPredecessorId, visitedNodes, successor);
-		if (!successor)
-			throw std::out_of_range("Node that inherits connection has not been found");
-		visitedNodes.clear();
+		FindPredecessorAndSuccessor(idToRemove, newPredecessorId, pToNodeToBeRemoved, successor);
 
 		// kada prebacujete èvorove, što se dogaða s njihovim težinskim faktorima (nekako mi se èini da se oni po putu izgube)
 		for (size_t i = 0; i < pToNodeToBeRemoved->NumberOfSuccessors(); ++i)
@@ -149,14 +145,13 @@ public:
 		}
 
 		FindPredecessor(m_root, idToRemove, visitedNodes, predecessor);
-		// ovo dolje je ružna petlja (nije uopæe kandidat za for petlju!)
-		for (; 
-			predecessor; 
-			predecessor = nullptr, 
-			FindPredecessor(m_root, idToRemove, visitedNodes, predecessor))
+		
+
+		while (predecessor)
 		{
 
 			predecessor->RemoveSuccessor(pToNodeToBeRemoved);
+			FindPredecessor(m_root, idToRemove, visitedNodes, predecessor = nullptr);
 		}
 			
 		if (m_root->GetId() == idToRemove)
@@ -215,6 +210,21 @@ public:
 	
 
 private:
+	void FindPredecessorAndSuccessor(const TId& predecessorId, const TId& successorId,
+		std::shared_ptr<GraphNode<TId>>& predecessor, std::shared_ptr<GraphNode<TId>>& successor)
+	{
+		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
+
+		FindSuccessor(m_root, predecessorId, visitedNodes, predecessor);
+		if (!predecessor)
+			throw std::out_of_range("Father node does not exist");
+
+		visitedNodes.clear();
+		FindSuccessor(m_root, successorId, visitedNodes, successor);
+		if (!successor)
+			throw std::out_of_range("Child node does not exist");
+	}
+
 	void FindShortestRoute(
 		std::shared_ptr<GraphNode<TId>> startPoint, // Tocka u kojoj se trenutacno nalazimo	
 		std::shared_ptr<GraphNode<TId>> endPoint,// Krajnja tocka 

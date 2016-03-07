@@ -75,7 +75,6 @@ public:
 	//		throw std::out_of_range("Node has no children");
 	//	if (index > NumberOfSuccessors())
 	//		throw std::out_of_range("Index out of range");
-
 	//	return m_successors.at(index)->GetWeightOfMovement();
 	//}
 
@@ -91,7 +90,7 @@ public:
 		if (!HasSuccessor(id))
 			throw std::out_of_range("Node has no successor with this id");
 
-		return GetMovement(id)->SetWeightOfMovement(newWeight);
+		return GetMovementNonConst(id).SetWeightOfMovement(newWeight);
 	}
 	size_t NumberOfSuccessors() const { return m_movements.size(); }
 
@@ -115,6 +114,15 @@ private:
 	{
 		const auto& found = std::find_if(m_movements.cbegin(), m_movements.cend(), [&id](const Movement& movement) { return id == movement.GetNextNode()->GetId(); });
 		return found != m_movements.cend() ? &*found : nullptr;
+	}
+
+	Movement& GetMovementNonConst(const TId& id)
+	{
+		for (size_t it = 0; it < m_movements.size();++it)
+			{
+				if (m_movements.at(it).GetNextNode()->GetId() == id)
+					return m_movements.at(it);
+			}
 	}
 
 	// zašto otkrivati internu implementaciju (shared_ptr)?

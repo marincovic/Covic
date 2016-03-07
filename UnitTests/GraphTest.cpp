@@ -89,16 +89,15 @@ namespace UnitTests
 				Assert::IsTrue(true);
 			}
 		}
-		
+
 		//Testovi za ContainsNode metodu
 		TEST_METHOD(Graph_ContainsNodeReturnsTrueIfDataIsPartOfANodeInGraph)
 		{
 			Graph<int> graph(5);
-			graph.AddNode(6,5);
+			graph.AddNode(6, 5);
 
 			Assert::IsTrue(graph.ContainsNode(5));
 		}
-
 		TEST_METHOD(Graph_ContainsNodeReturnsFalseIfDataIsNotPartOfANodeInGraph)
 		{
 			Graph<int> graph(5);
@@ -127,7 +126,7 @@ namespace UnitTests
 				Assert::IsTrue(true);
 			}
 		}
-		
+
 		//Testovi za CheckConnection metodu
 		TEST_METHOD(Graph_CheckConnectionReturnsTrueIfParentIsConnectedToChild)
 		{
@@ -156,7 +155,7 @@ namespace UnitTests
 			graph.AddNode(6, 5);
 			Assert::IsFalse(graph.CheckConnection(6, 7));
 		}
-		
+
 		//Testovi za ConnectNode
 		TEST_METHOD(Graph_ConnectNodeConnectsParentAndChildNode)
 		{
@@ -204,6 +203,41 @@ namespace UnitTests
 			Graph<int> graf(5);
 			GrafConstruction(graf);
 			Assert::AreEqual(11, graf.NumberOfNodesInGraph());
+		}
+
+		//Testovi za SetWeightOfMovementConnectingTwoNodes
+		TEST_METHOD(Graph_SetWeightOfMovementConnectingTwoNodesChangesWeightOfMovementForTwoConnecetedNodes)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6,5);
+			graph.SetWeightOfMovementConnectingTwoNodes(5, 6, 2.0);
+			Assert::AreEqual(2.0, graph.GetWeightOfMovementConnectingTwoNodes(5,6));
+		}
+		TEST_METHOD(Graph_SetWeightOfMovementConnectingTwoNodesThorwExceptionWhenFirstNodeIsNotFound)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			try {
+				graph.SetWeightOfMovementConnectingTwoNodes(7, 6, 2.0);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+		TEST_METHOD(Graph_SetWeightOfMovementConnectingTwoNodesThorwExceptionWhenSecondNodeIsNotFound)
+		{
+			Graph<int> graph(5);
+			graph.AddNode(6, 5);
+			try {
+				graph.SetWeightOfMovementConnectingTwoNodes(5, 7, 2.0);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
 		}
 
 		//Testovi za RemoveConnection
