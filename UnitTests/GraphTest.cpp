@@ -74,7 +74,6 @@ namespace UnitTests
 			graph.AddNode(9, 5);
 			Assert::AreEqual(2, graph.NumberOfNodesInGraph());
 		}
-
 		TEST_METHOD(Graph_AddNodeThrowsExceptionWhenParentDoesNotExist)
 		{
 			Graph<int> graph(5);
@@ -115,7 +114,6 @@ namespace UnitTests
 			graph.AddNode(6, 5);
 			Assert::AreEqual(5, graph.GetPredecessorId(5));
 		}
-
 		TEST_METHOD(Graph_DataOfNodeThrowsExceptionIfMemberIsNotFound)
 		{
 			Graph<int> graph(5);
@@ -286,5 +284,77 @@ namespace UnitTests
 				Assert::IsTrue(true);
 			}
 		}
+
+		//Testovi za najkraci put
+		TEST_METHOD(Graph_FindShortestRouteConnectingTwoPointsReturnsShortestRouteConnectingPoint5toPoint12)
+		{
+			Graph<int> graph(5);
+			GrafConstruction(graph);
+
+			Assert::AreEqual(4, (int) graph.FindShortestRouteConnectingTwoNodes(5, 12).size());
+		}
+		TEST_METHOD(Graph_FindShortestRouteConnectingTwoPointsThrowExceptionWhenFatherStarPointDoesNOtExist)
+		{
+			Graph<int> graph(5);
+			GrafConstruction(graph);
+			try {
+				graph.FindShortestRouteConnectingTwoNodes(1, 12);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+		TEST_METHOD(Graph_FindShortestRouteConnectingTwoPointsThrowExceptionWhenEndPointDoesNOtExist)
+		{
+			Graph<int> graph(5);
+			GrafConstruction(graph);
+			try {
+				graph.FindShortestRouteConnectingTwoNodes(5, 22);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+
+
+		//Testovi za nalaksi put
+		TEST_METHOD(Graph_FindEasiestRouteConnectingTwoPointsReturnsEasiestRouteConnectingPoint5toPoint12)
+		{
+			Graph<int> graph(5);
+			GrafConstruction(graph);
+
+			Assert::AreEqual(5, (int)graph.FindEasiestRouteConnectingTwoPoints(5, 12).size());
+		}
+		TEST_METHOD(Graph_FindEasiestRouteConnectingTwoPointsThrowExceptionWhenFatherStarPointDoesNOtExist)
+		{
+			Graph<int> graph(5);
+			GrafConstruction(graph);
+			try {
+				graph.FindEasiestRouteConnectingTwoPoints(1, 12);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+		TEST_METHOD(Graph_FindEasiestRouteConnectingTwoPointsThrowExceptionWhenEndPointDoesNOtExist)
+		{
+			Graph<int> graph(5);
+			GrafConstruction(graph);
+			try {
+				graph.FindEasiestRouteConnectingTwoPoints(5, 22);
+				Assert::Fail();
+			}
+			catch (std::out_of_range&)
+			{
+				Assert::IsTrue(true);
+			}
+		}
+
 	};
 }

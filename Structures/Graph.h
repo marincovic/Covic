@@ -166,7 +166,139 @@ public:
 
 	int NumberOfNodesInGraph() { return m_numberOfNodes; }
 
+	std::vector<TId> FindShortestRouteConnectingTwoNodes(const TId startPoint, const TId endPoint)
+	{
+		std::shared_ptr<GraphNode<TId>> startNode = nullptr;
+		std::shared_ptr<GraphNode<TId>> endNode = nullptr;
+		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
+		std::vector<TId> shortest;
+		std::vector<TId> helper;
+
+		FindSuccessor(m_root, startPoint, visitedNodes, startNode);
+		if (!startNode)
+			throw std::out_of_range("Start node has not been found");
+		visitedNodes.clear();
+
+		FindSuccessor(m_root, endPoint, visitedNodes, endNode);
+		if (!endNode)
+			throw std::out_of_range("End node has not been found");
+		visitedNodes.clear();
+
+		FindShortestRoute(startNode, endNode, visitedNodes, shortest, helper);
+		return shortest;
+	}
+
+	std::vector<TId> FindEasiestRouteConnectingTwoPoints(const TId startPoint, const TId endPoint)
+	{
+		std::shared_ptr<GraphNode<TId>> startNode = nullptr;
+		std::shared_ptr<GraphNode<TId>> endNode = nullptr;
+		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
+		std::vector<TId> easiest;
+		std::vector<TId> helper;
+		int weight;
+
+		FindSuccessor(m_root, startPoint, visitedNodes, startNode);
+		if (!startNode)
+			throw std::out_of_range("Start node has not been found");
+		visitedNodes.clear();
+
+		FindSuccessor(m_root, endPoint, visitedNodes, endNode);
+		if (!endNode)
+			throw std::out_of_range("End node has not been found");
+		visitedNodes.clear();
+
+		FindEasiestRoute(startNode, endNode, visitedNodes, easiest, helper, weight);
+		return easiest;
+	}
+
+
+	
+
 private:
+	void FindShortestRoute(
+		std::shared_ptr<GraphNode<TId>> startPoint, // Tocka u kojoj se trenutacno nalazimo	
+		std::shared_ptr<GraphNode<TId>> endPoint,// Krajnja tocka 
+		std::vector<std::shared_ptr<GraphNode<TId>>> &visitedNodes,// Lista svih tocaka koje smo prosli
+		std::vector<TId> &shortest,// Lista najlakse rute
+		std::vector<TId> &helper)// Pomocna lista)
+	{
+		if (!startPoint || !endPoint)
+			return;
+		if (startPoint == endPoint)
+		{
+			helper.push_back(startPoint->GetId());
+			if (shortest.size()>helper.size() || shortest.size() == 0)
+				shortest = helper;
+			return;
+		}
+		for each (auto iterator in visitedNodes)
+		{
+			if (startPoint == iterator)
+				return;
+		}
+		visitedNodes.push_back(startPoint);
+		helper.push_back(startPoint->GetId());
+
+		for (size_t i = 0; i < startPoint->NumberOfSuccessors(); ++i)
+		{
+			FindShortestRoute(
+				startPoint->GetSuccessor(i),
+				endPoint,
+				visitedNodes,
+				shortest,
+				helper
+				);
+			if (visitedNodes.size()) visitedNodes.pop_back();
+			if (helper.size()) helper.pop_back();
+		}
+	}
+
+	void FindEasiestRoute(
+		std::shared_ptr<GraphNode<TId>> startPoint, // Tocka u kojoj se trenutacno nalazimo	
+		std::shared_ptr<GraphNode<TId>> endPoint,// Krajnja tocka 
+		std::vector<std::shared_ptr<GraphNode<TId>>> &visitedNodes,// Lista svih tocaka koje smo prosli
+		std::vector<TId> &shortest,// Lista najlakse rute
+		std::vector<TId>&helper, // Pomocna lista
+		int &routeWeight, // Tezina najlakas rute
+		int routeWeightHelper = 0) // Tezina trenutacne rute
+	{
+		if (!startPoint || !endPoint)
+			return;
+		if (startPoint == endPoint)
+		{
+			helper.push_back(startPoint->GetId());
+			if (routeWeight > routeWeightHelper || shortest.size() == 0)
+			{
+				shortest = helper;
+				routeWeight = routeWeightHelper;
+			}
+			return;
+		}
+		for each (auto iterator in visitedNodes)
+		{
+			if (startPoint == iterator)
+				return;
+		}
+		visitedNodes.push_back(startPoint);
+		helper.push_back(startPoint->GetId());
+
+		for (size_t i = 0; i < startPoint->NumberOfSuccessors(); ++i)
+		{
+			FindEasiestRoute(
+				startPoint->GetSuccessor(i),
+				endPoint,
+				visitedNodes,
+				shortest,
+				helper,
+				routeWeight,
+				routeWeightHelper + startPoint->GetWeightOfMovementToSuccessor(startPoint->GetSuccessor(i)->GetId())
+				);
+			if (visitedNodes.size()) visitedNodes.pop_back();
+			if (helper.size()) helper.pop_back();
+		}
+	}
+
+
 	void ConnectNodes(std::shared_ptr<GraphNode<TId>> predecessor, std::shared_ptr<GraphNode<TId>> successor)
 	{
 		if (!predecessor)

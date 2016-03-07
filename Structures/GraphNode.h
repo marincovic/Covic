@@ -13,6 +13,8 @@ public:
 
 	const TNextNode& GetNextNode() const { return m_nextNode; }
 	double GetWeightOfMovement() const { return m_weightOfMovement; }
+
+	void SetWeightOfMovement(const double& newWeight) { m_weightOfMovement = newWeight; }
 private:
 	// zlatno pravilo enkapsulacije: podatkovni èlanovi UVIJEK moraju biti privatni!
 	TNextNode m_nextNode;
@@ -84,7 +86,13 @@ public:
 
 		return GetMovement(id)->GetWeightOfMovement();
 	}
+	void SetWeightOfMovementToSuccessor(const TId& id, const double& newWeight)
+	{
+		if (!HasSuccessor(id))
+			throw std::out_of_range("Node has no successor with this id");
 
+		return GetMovement(id)->SetWeightOfMovement(newWeight);
+	}
 	size_t NumberOfSuccessors() const { return m_movements.size(); }
 
 private:
