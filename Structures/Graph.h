@@ -2,6 +2,7 @@
 #include"GraphNode.h"
 
 #include<vector>
+#include<map>
 #include<memory>
 
 template<typename TId>
@@ -9,12 +10,13 @@ class Graph {
 public:
 	Graph(const TId& id)
 	{
-		m_root = std::make_shared<GraphNode<TId>>(id);
+		m_root = std::make_shared<GraphNode<TId>>(id,m_numberOfNodes);
+		m_mapOfExistingNodes.emplace(m_nodeID++, m_root);
 		m_numberOfNodes = 1; // nema smisla operator inkrementiranja kada se zna da æe ovo uvijek biti 1
 	};
 	~Graph() {};
 
-	void AddNode(const TId& newNodeId, const TId& predecessorId, double weightOfMovement = 0)
+	unsigned AddNode(const TId& newNodeId, const TId& predecessorId, double weightOfMovement = 0)
 	{
 		// preimenovano da bude u skladu s uobièajenom terminologijom (https://en.wikipedia.org/wiki/Directed_graph)
 		std::shared_ptr<GraphNode<TId>> predecessorNode = nullptr;
@@ -31,85 +33,74 @@ public:
 		FindSuccessor(m_root, newNodeId, visitedNodes, successorNode);
 		if (successorNode)
 		{
-			// buduæi da s iznimkom ništa ne radite veæ ju odmah bacate dalje, 
-			// nema potrebe pisati try-catch blok 
-			//try
-			//{
-			//	ConnectNode(predecessor, pToPosibleChildNode);
-			//}
-			//catch (std::out_of_range& error)
-			//{
-			//	throw error;
-			//}
 			ConnectNodes(predecessorNode, successorNode);
-			return;
+			return INT32_MAX;
 		}
+		std::shared_ptr<GraphNode<TId>> tempNode = std::make_shared<GraphNode<TId>>(newNodeId, m_numberOfNodes);
+		predecessorNode->AddSuccessor(tempNode, weightOfMovement);
+		
+		std::weak_ptr<GraphNode<TId>> weakTempNode = tempNode;
 
-		predecessorNode->AddSuccessor(newNodeId, weightOfMovement);
+		m_mapOfExistingNodes.emplace(m_nodeID++,weakTempNode);
+
 		++m_numberOfNodes;
+		return m_nodeID-1;
 	}
 
-	const TId& GetPredecessorId(const TId& id)
+	const TId& GetPredecessorId(const unsigned id)
 	{
-		std::shared_ptr<GraphNode<TId>> predecessorNode = nullptr;
-		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
-
-		FindSuccessor(m_root, id, visitedNodes, predecessorNode);
-
-		if (!predecessorNode)
+		std::map<unsigned, std::weak_ptr<GraphNode<TId>>>::iterator it = m_mapOfExistingNodes.find(id);
+		
+		if (it == m_mapOfExistingNodes.end())
 			throw std::out_of_range("Predecessor node does not exist");
 
-		return predecessorNode->GetId();
+		return it->second.lock()->GetId();
 	}
 
-	bool ContainsNode(const TId& id)
+	bool ContainsNode(const unsigned nodeId)
 	{
-		std::shared_ptr<GraphNode<TId>> predecessor = nullptr;
-		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
+		std::map<unsigned, std::weak_ptr<GraphNode<TId>>>::iterator it = m_mapOfExistingNodes.find(nodeId);
 
-		FindSuccessor(m_root, id, visitedNodes, predecessor);
-
-		return predecessor != nullptr;
+		if (it == m_mapOfExistingNodes.end())
+			return false;
+		return true;
+		
 	}
 
-	bool CheckConnection(const TId& predecessorId, const TId& successorId)
+	bool CheckConnection(const unsigned predecessorId, const unsigned successorId)
 	{
-		std::shared_ptr<GraphNode<TId>> predecessor = nullptr;
-		std::shared_ptr<GraphNode<TId>> successor = nullptr;
-		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
-
-		FindSuccessor(m_root, predecessorId, visitedNodes, predecessor);
-
-		visitedNodes.clear();
-		FindSuccessor(m_root, successorId, visitedNodes, successor);
-
-		if (!predecessor || !successor)
+		std::map<unsigned, std::weak_ptr<GraphNode<TId>>>::iterator itPred = m_mapOfExistingNodes.find(predecessorId);
+		if (itPred == m_mapOfExistingNodes.end()) 
 			return false;
 
-		return predecessor->HasSuccessor(successor->GetId());
+		std::map<unsigned, std::weak_ptr<GraphNode<TId>>>::iterator itSucc = m_mapOfExistingNodes.find(successorId);
+		if (itSucc == m_mapOfExistingNodes.end()) 
+			return false;
+
+		return itPred->second.lock()->HasSuccessor(itSucc->second.lock()->GetNodeId());
 	}
 
-	void SetWeightOfMovementConnectingTwoNodes(const TId& firstNodeId, const TId& secondNodeId, double weightOfMovement = 0)
+	void SetWeightOfMovementConnectingTwoNodes(const unsigned firstNodeId, const unsigned secondNodeId, double weightOfMovement = 0)
 	{
 		std::shared_ptr<GraphNode<TId>> firstNode = nullptr;
 		std::shared_ptr<GraphNode<TId>> secondNode = nullptr;
 		
 		FindPredecessorAndSuccessor(firstNodeId, secondNodeId, firstNode, secondNode);
 		
-		firstNode->SetWeightOfMovementToSuccessor(secondNodeId, weightOfMovement);
+		firstNode->SetWeightOfMovementToSuccessor(secondNode->GetNodeId(), weightOfMovement);
 	}
 
-	double GetWeightOfMovementConnectingTwoNodes(const TId& firstNodeId, const TId& secondNodeId)
+	double GetWeightOfMovementConnectingTwoNodes(const unsigned firstNodeId, const unsigned secondNodeId)
 	{
 		std::shared_ptr<GraphNode<TId>> firstNode = nullptr;
 		std::shared_ptr<GraphNode<TId>> secondNode = nullptr;
 
 		FindPredecessorAndSuccessor(firstNodeId, secondNodeId, firstNode, secondNode);
 
-		return firstNode->GetWeightOfMovementToSuccessor(secondNodeId);
+		return firstNode->GetWeightOfMovementToSuccessor(secondNode->GetNodeId());
 	}
 
-	void ConnectNodes(const TId& predecessorId, const TId& successorId, double weightOfMovement = 0)
+	void ConnectNodes(const unsigned predecessorId, const unsigned successorId, double weightOfMovement = 0)
 	{
 		std::shared_ptr<GraphNode<TId>> predecessor = nullptr;
 		std::shared_ptr<GraphNode<TId>> successor = nullptr;
@@ -118,7 +109,7 @@ public:
 		predecessor->AddSuccessor(successor, weightOfMovement);
 	}
 
-	void RemoveConnection(const TId& predecessorId, const TId& successorId)
+	void RemoveConnection(const unsigned predecessorId, const unsigned successorId)
 	{
 		std::shared_ptr<GraphNode<TId>> predecessor = nullptr;
 		std::shared_ptr<GraphNode<TId>> successor = nullptr;
@@ -126,10 +117,10 @@ public:
 
 		FindPredecessorAndSuccessor(predecessorId, successorId, predecessor, successor);
 
-		predecessor->RemoveSuccessor(successor);
+		predecessor->RemoveSuccessor(successor->GetNodeId());
 	}
 
-	void RemoveNode(const TId& idToRemove, const TId& newPredecessorId)
+	void RemoveNode(const unsigned idToRemove, const unsigned newPredecessorId)
 	{
 		std::shared_ptr<GraphNode<TId>> predecessor = nullptr;
 		std::shared_ptr<GraphNode<TId>> pToNodeToBeRemoved = nullptr;
@@ -153,15 +144,17 @@ public:
 			predecessor->RemoveSuccessor(pToNodeToBeRemoved);
 			FindPredecessor(m_root, idToRemove, visitedNodes, predecessor = nullptr);
 		}
-			
+		
 		if (m_root->GetId() == idToRemove)
 			m_root = std::shared_ptr<GraphNode<TId>>(successor);
+		m_mapOfExistingNodes.erase(idToRemove);
 		--m_numberOfNodes;
+		
 	}
 
 	int NumberOfNodesInGraph() { return m_numberOfNodes; }
 
-	std::vector<TId> FindShortestRouteConnectingTwoNodes(const TId startPoint, const TId endPoint)
+	std::vector<TId> FindShortestRouteConnectingTwoNodes(const unsigned startPoint, const unsigned endPoint)
 	{
 		std::shared_ptr<GraphNode<TId>> startNode = nullptr;
 		std::shared_ptr<GraphNode<TId>> endNode = nullptr;
@@ -169,60 +162,51 @@ public:
 		std::vector<TId> shortest;
 		std::vector<TId> helper;
 
-		FindSuccessor(m_root, startPoint, visitedNodes, startNode);
-		if (!startNode)
-			throw std::out_of_range("Start node has not been found");
-		visitedNodes.clear();
-
-		FindSuccessor(m_root, endPoint, visitedNodes, endNode);
-		if (!endNode)
-			throw std::out_of_range("End node has not been found");
-		visitedNodes.clear();
+		FindPredecessorAndSuccessor(startPoint, endPoint, startNode, endNode);
 
 		FindShortestRoute(startNode, endNode, visitedNodes, shortest, helper);
 		return shortest;
 	}
 
-	std::vector<TId> FindEasiestRouteConnectingTwoPoints(const TId startPoint, const TId endPoint)
+	std::vector<TId> FindEasiestRouteConnectingTwoPoints(const unsigned startPoint, const unsigned endPoint)
 	{
 		std::shared_ptr<GraphNode<TId>> startNode = nullptr;
 		std::shared_ptr<GraphNode<TId>> endNode = nullptr;
 		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
 		std::vector<TId> easiest;
 		std::vector<TId> helper;
-		int weight;
+		double weight;
 
-		FindSuccessor(m_root, startPoint, visitedNodes, startNode);
-		if (!startNode)
-			throw std::out_of_range("Start node has not been found");
-		visitedNodes.clear();
-
-		FindSuccessor(m_root, endPoint, visitedNodes, endNode);
-		if (!endNode)
-			throw std::out_of_range("End node has not been found");
-		visitedNodes.clear();
+		FindPredecessorAndSuccessor(startPoint, endPoint, startNode, endNode);
 
 		FindEasiestRoute(startNode, endNode, visitedNodes, easiest, helper, weight);
 		return easiest;
 	}
 
 
-	
+	void CheckPtrQualaty()
+	{
+		std::map<unsigned, std::weak_ptr<GraphNode<TId>>>::iterator it = m_mapOfExistingNodes.find(0);
+		for (; it != m_mapOfExistingNodes.end(); ++it)
+		{
+			if (it->second.expired())
+				it = m_mapOfExistingNodes.erase(it);
+		}
+	}
 
 private:
-	void FindPredecessorAndSuccessor(const TId& predecessorId, const TId& successorId,
+	void FindPredecessorAndSuccessor(const unsigned predecessorId, const unsigned successorId,
 		std::shared_ptr<GraphNode<TId>>& predecessor, std::shared_ptr<GraphNode<TId>>& successor)
 	{
-		std::vector<std::shared_ptr<GraphNode<TId>>> visitedNodes;
-
-		FindSuccessor(m_root, predecessorId, visitedNodes, predecessor);
-		if (!predecessor)
+		std::map<unsigned, std::weak_ptr<GraphNode<TId>>>::iterator it  = m_mapOfExistingNodes.find(predecessorId);
+		if (it == m_mapOfExistingNodes.end())
 			throw std::out_of_range("Father node does not exist");
+		predecessor = it->second.lock();
 
-		visitedNodes.clear();
-		FindSuccessor(m_root, successorId, visitedNodes, successor);
-		if (!successor)
+		it = m_mapOfExistingNodes.find(successorId);
+		if (it == m_mapOfExistingNodes.end())
 			throw std::out_of_range("Child node does not exist");
+		successor = it->second.lock();
 	}
 
 	void FindShortestRoute(
@@ -269,8 +253,8 @@ private:
 		std::vector<std::shared_ptr<GraphNode<TId>>> &visitedNodes,// Lista svih tocaka koje smo prosli
 		std::vector<TId> &shortest,// Lista najlakse rute
 		std::vector<TId>&helper, // Pomocna lista
-		int &routeWeight, // Tezina najlakas rute
-		int routeWeightHelper = 0) // Tezina trenutacne rute
+		double &routeWeight, // Tezina najlakas rute
+		double routeWeightHelper = 0) // Tezina trenutacne rute
 	{
 		if (!startPoint || !endPoint)
 			return;
@@ -301,7 +285,7 @@ private:
 				shortest,
 				helper,
 				routeWeight,
-				routeWeightHelper + startPoint->GetWeightOfMovementToSuccessor(startPoint->GetSuccessor(i)->GetId())
+				routeWeightHelper + startPoint->GetWeightOfMovementToSuccessor(startPoint->GetSuccessor(i)->GetNodeId())
 				);
 			if (visitedNodes.size()) visitedNodes.pop_back();
 			if (helper.size()) helper.pop_back();
@@ -381,6 +365,10 @@ private:
 		}
 	}
 
+	
+
 	std::shared_ptr<GraphNode<TId>> m_root;
-	int m_numberOfNodes = 0;
+	std::map<unsigned, std::weak_ptr<GraphNode<TId>>> m_mapOfExistingNodes;
+	unsigned m_numberOfNodes = 0;
+	unsigned m_nodeID = 0;
 };

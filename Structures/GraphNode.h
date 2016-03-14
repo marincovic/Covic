@@ -30,25 +30,26 @@ class GraphNode
 public:
 	// mislim da prazni èvor uopæe nema smisla
 	// GraphNode() {};
-	GraphNode(const TId& id) : m_id(id) {};
+	GraphNode(const TId& id, unsigned nodeId) : m_nodeData(id) , m_nodeId(nodeId) {};
 	~GraphNode() {}
 
-	const TId& GetId() { return m_id; }
+	const TId& GetId() { return m_nodeData; }
+	const unsigned GetNodeId() { return m_nodeId; }
 	
 	// mislim da ovo ne treba (zašto biste mijenjali id èvora?)
-	//void SetDataOfMember(const TId& newDataMember) { m_id = newDataMember; }
+	void SetDataOfMember(const TId& newDataMember) { m_nodeData = newDataMember; }
 
-	void AddSuccessor(const TId& successorId, double weightOfMovement = 0)
+	void AddSuccessor(const TId& successorId, int nodeId, double weightOfMovement = 0)
 	{
-		m_movements.emplace_back(std::make_shared<GraphNode<TId>>(successorId), weightOfMovement);
+		m_movements.emplace_back(std::make_shared<GraphNode<TId>>(successorId, nodeId), weightOfMovement);
 	}
 
-	void RemoveSuccessor(const TId& successorId)
+	void RemoveSuccessor(const unsigned successorNodeId)
 	{
 		if (!NumberOfSuccessors())
 			throw std::out_of_range("Node has no successors");
 
-		const auto& found = std::find_if(m_movements.cbegin(), m_movements.cend(), [&successorId](const Movement& movement) { return successorId == movement.GetNextNode()->GetId(); });
+		const auto& found = std::find_if(m_movements.cbegin(), m_movements.cend(), [&successorNodeId](const Movement& movement) { return successorNodeId == movement.GetNextNode()->GetNodeId(); });
 		if (found != m_movements.cend())
 		{
 			m_movements.erase(found);
@@ -57,9 +58,15 @@ public:
 		throw std::out_of_range("Node has no successor with that id");
 	}
 
-	bool HasSuccessor(const TId& successorId) const
+	bool HasSuccessor(const unsigned successorId) const
 	{
-		return std::find_if(m_movements.cbegin(), m_movements.cend(), [&successorId](const Movement& movement) { return successorId == movement.GetNextNode()->GetId(); }) != m_movements.cend();
+		//return std::find_if(m_movements.cbegin(), m_movements.cend(), [&successorId](const Movement& movement) { return successorId == movement.GetNextNode()->GetId(); }) != m_movements.cend();
+		for (size_t it = 0; it < m_movements.size(); ++it)
+		{
+			if (m_movements.at(it).GetNextNode()->GetNodeId() == successorId)
+				return true;
+		}
+		return false;
 	}
 
 	// ne vidim realnog razloga zašto biste nasljednike dohvaæali preko cjelobrojnog indeksa? 
@@ -78,19 +85,19 @@ public:
 	//	return m_successors.at(index)->GetWeightOfMovement();
 	//}
 
-	double GetWeightOfMovementToSuccessor(const TId& id) const
+	double GetWeightOfMovementToSuccessor(const unsigned nodeId) const
 	{
-		if (!HasSuccessor(id))
+		if (!HasSuccessor(nodeId))
 			throw std::out_of_range("Node has no successor with this id");
 
-		return GetMovement(id)->GetWeightOfMovement();
+		return GetMovement(nodeId)->GetWeightOfMovement();
 	}
-	void SetWeightOfMovementToSuccessor(const TId& id, const double& newWeight)
+	void SetWeightOfMovementToSuccessor(const unsigned nodeId, const double& newWeight)
 	{
-		if (!HasSuccessor(id))
+		if (!HasSuccessor(nodeId))
 			throw std::out_of_range("Node has no successor with this id");
 
-		return GetMovementNonConst(id).SetWeightOfMovement(newWeight);
+		return GetMovementNonConst(nodeId).SetWeightOfMovement(newWeight);
 	}
 	size_t NumberOfSuccessors() const { return m_movements.size(); }
 
@@ -110,17 +117,17 @@ private:
 		return m_movements.at(index).GetNextNode();
 	}
 
-	const Movement* GetMovement(const TId& id) const
+	const Movement* GetMovement(const unsigned id) const
 	{
-		const auto& found = std::find_if(m_movements.cbegin(), m_movements.cend(), [&id](const Movement& movement) { return id == movement.GetNextNode()->GetId(); });
+		const auto& found = std::find_if(m_movements.cbegin(), m_movements.cend(), [&id](const Movement& movement) { return id == movement.GetNextNode()->GetNodeId(); });
 		return found != m_movements.cend() ? &*found : nullptr;
 	}
 
-	Movement& GetMovementNonConst(const TId& id)
+	Movement& GetMovementNonConst(const unsigned id)
 	{
 		for (size_t it = 0; it < m_movements.size();++it)
 			{
-				if (m_movements.at(it).GetNextNode()->GetId() == id)
+				if (m_movements.at(it).GetNextNode()->GetNodeId() == id)
 					return m_movements.at(it);
 			}
 	}
@@ -133,10 +140,11 @@ private:
 
 	void RemoveSuccessor(std::shared_ptr<GraphNode<TId>> successor)
 	{
-		RemoveSuccessor(successor->GetId());
+		RemoveSuccessor(successor->GetNodeId());
 	}
 
 private:
-	TId m_id;
+	unsigned m_nodeId;
+	TId m_nodeData;
 	std::vector<Movement> m_movements;
 };
